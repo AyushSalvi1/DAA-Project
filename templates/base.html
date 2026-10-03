@@ -5,9 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ title or 'Search' }}{% endblock %} &middot; {{ app_name }}</title>
   <meta name="description" content="NexaSearch - an algorithmic search engine built for a Design and Analysis of Algorithms project. Trie, hashing, KMP, Rabin-Karp, BFS, DFS, Dijkstra, TF-IDF and PageRank implemented by hand.">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#080c18" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f6fc" media="(prefers-color-scheme: light)">
   <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+  <link rel="preload" href="{{ url_for('static', filename='fonts/inter-var-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/space-grotesk-var-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script>
+    /* Set the theme before first paint so a returning light-theme visitor
+       never sees a white flash. Kept in sync with THEME_KEY in main.js. */
+    (function () {
+      try {
+        var stored = localStorage.getItem("nexasearch.theme");
+        if (!stored) {
+          stored = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "light" : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", stored);
+      } catch (e) { /* private mode: keep the default */ }
+    })();
+  </script>
   {% block head %}{% endblock %}
 </head>
 <body>

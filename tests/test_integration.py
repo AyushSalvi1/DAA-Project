@@ -405,6 +405,38 @@ class TestPages:
         response = client.get("/search")
         assert "Type a search query" in response.get_data(as_text=True)
 
+    def test_self_hosted_fonts_are_served_as_fonts(self, client):
+        """The stylesheet declares Inter / Space Grotesk / JetBrains Mono by
+        name, so the woff2 files must actually be reachable and correctly
+        typed - a browser ignores a font it cannot decode."""
+        expected = {
+            "inter-var-latin.woff2",
+            "space-grotesk-var-latin.woff2",
+            "jetbrains-mono-var-latin.woff2",
+        }
+        for name in expected:
+            response = client.get(f"/static/fonts/{name}")
+            assert response.status_code == 200
+            assert response.headers["Content-Type"] == "font/woff2"
+            assert response.data[:4] == b"wOF2"      # real woff2 magic bytes
+            assert len(response.data) > 10_000
+        css = client.get("/static/css/style.css").get_data(as_text=True)
+        for name in expected:
+            assert name in css
+        assert "font-display: swap" in css
+
+    def test_font_route_rejects_anything_that_is_not_a_font(self, client):
+        assert client.get("/static/fonts/style.css").status_code == 404
+        assert client.get("/static/fonts/../../app.py").status_code == 404
+        assert client.get("/static/fonts/missing.woff2").status_code == 404
+
+    def test_theme_is_applied_before_first_paint(self, client):
+        """A returning light-theme visitor must not see a dark flash, so the
+        stored theme is resolved by an inline head script, not at DOM ready."""
+        body = client.get("/").get_data(as_text=True)
+        assert "nexasearch.theme" in body
+        assert body.index("nexasearch.theme") < body.index('src="/static/js/main.js"')
+
     def test_search_records_history(self, client, db):
         db.clear_history()
         client.get("/search?q=history+probe")

@@ -209,6 +209,14 @@
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
+  /* "#6f8bff" + alpha -> "rgba(111,139,255,0.28)" for chart area fills. */
+  function hexToRgba(hex, alpha) {
+    const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(hex).trim());
+    if (!match) return hex;
+    const [r, g, b] = match.slice(1).map(part => parseInt(part, 16));
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
   function niceMax(value) {
     if (value <= 0) return 1;
     const exp = Math.floor(Math.log10(value));
@@ -229,7 +237,7 @@
 
     const text = cssVar("--text-3") || "#74809f";
     const gridColor = cssVar("--border") || "rgba(148,163,208,.16)";
-    const font = '12px "Inter", system-ui, sans-serif';
+    const font = '12px "Inter var", "Segoe UI", system-ui, sans-serif';
     ctx.font = font;
 
     if (!spec || !spec.series || !spec.series.length) return;
@@ -321,11 +329,32 @@
           ctx.globalAlpha = 1;
         });
       } else {
+        const baseline = padding.top + plotHeight;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.lineWidth = 2.2;
+
+        /* soft area fill under the line, drawn first so the stroke sits on top */
         ctx.beginPath();
         series.data.forEach((point, index) => {
           const x = xAt(index), y = toY(point.y);
           if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         });
+        ctx.lineTo(xAt(series.data.length - 1), baseline);
+        ctx.lineTo(xAt(0), baseline);
+        ctx.closePath();
+        const fill = ctx.createLinearGradient(0, padding.top, 0, baseline);
+        fill.addColorStop(0, hexToRgba(color, .28));
+        fill.addColorStop(1, hexToRgba(color, 0));
+        ctx.fillStyle = fill;
+        ctx.fill();
+
+        ctx.beginPath();
+        series.data.forEach((point, index) => {
+          const x = xAt(index), y = toY(point.y);
+          if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = color;
         ctx.stroke();
         series.data.forEach((point, index) => {
           const x = xAt(index), y = toY(point.y);

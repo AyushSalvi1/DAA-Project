@@ -498,17 +498,26 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
     const seen = new Set(visited || []);
+    /* Read the palette off the CSS custom properties so the canvas follows
+       the light/dark theme instead of assuming a dark page. */
+    const token = (name, fallback) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+    const dimEdge = token("--border-strong", "rgba(148,163,208,.4)");
+    const dimNode = token("--surface-3", "rgba(148,163,208,.2)");
+    const dimLabel = token("--text-3", "#74809f");
+    const fontStack = '"Inter var", "Segoe UI", system-ui, sans-serif';
 
     context.edges.forEach(edge => {
       const a = context.positions[edge[0]], b = context.positions[edge[1]];
       if (!a || !b) return;
       ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-      ctx.strokeStyle = seen.has(edge[0]) && seen.has(edge[1]) ? "rgba(111,139,255,.75)" : "rgba(148,163,208,.22)";
+      ctx.strokeStyle = seen.has(edge[0]) && seen.has(edge[1])
+        ? "rgba(111,139,255,.75)" : dimEdge;
       ctx.lineWidth = 1.4; ctx.stroke();
       if (edge.length === 3) {
         const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-        ctx.fillStyle = "rgba(168,179,209,.9)";
-        ctx.font = '11px "Inter", sans-serif';
+        ctx.fillStyle = token("--text-2", "rgba(168,179,209,.9)");
+        ctx.font = `11px ${fontStack}`;
         ctx.textAlign = "center";
         ctx.fillText(String(edge[2]), mx, my - 5);
       }
@@ -519,13 +528,13 @@
       const active = seen.has(node);
       ctx.beginPath();
       ctx.arc(p.x, p.y, active ? 17 : 14, 0, Math.PI * 2);
-      ctx.fillStyle = active ? nodeColor(node) : "rgba(148,163,208,.2)";
+      ctx.fillStyle = active ? nodeColor(node) : dimNode;
       ctx.fill();
-      ctx.strokeStyle = active ? "#fff" : "rgba(148,163,208,.4)";
+      ctx.strokeStyle = active ? "#fff" : dimEdge;
       ctx.lineWidth = active ? 2 : 1;
       ctx.stroke();
-      ctx.fillStyle = active ? "#08122a" : "rgba(200,210,235,.85)";
-      ctx.font = 'bold 12px "Inter", sans-serif';
+      ctx.fillStyle = active ? "#08122a" : dimLabel;
+      ctx.font = `bold 12px ${fontStack}`;
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(String(node).slice(0, 2), p.x, p.y);
     });

@@ -27,7 +27,7 @@ sample documents** (≈2,070 distinct terms), builds the inverted index and
 computes PageRank — roughly two seconds. Later runs reuse the database.
 
 ```bash
-python -m pytest -q          # 233 tests
+python -m pytest -q          # 277 tests
 ```
 
 Optional environment variables:
@@ -176,8 +176,11 @@ core/
   benchmark.py              searching / string / sorting / graph benchmarks
 routes/                     search_routes, algorithm_routes, admin_routes, api_routes
 templates/  static/         Jinja pages, CSS, canvas visualisers
-tests/                      test_algorithms.py (125) + test_integration.py (108)
+tests/                      test_algorithms.py (125)
+                             test_integration.py (111)
+                             test_design.py (41)
 docs/ALGORITHMS.md           per-algorithm proof sketch, recurrence and complexity
+static/fonts/                 3 self-hosted variable woff2 faces (OFL)
 data/sample_documents/      the same corpus as importable .txt files
 ```
 
@@ -223,12 +226,16 @@ a `set` of node names would produce a different "traversal order" on every run.
 tests/test_algorithms.py    125 tests - correctness *and* cost behaviour
                             (probe counts, heap orderings, LPS arrays,
                             agreement with brute force, convergence)
-tests/test_integration.py   108 tests - database CRUD, index maintenance, graph
+tests/test_integration.py   111 tests - database CRUD, index maintenance, graph
                             invariants, the full ranking pipeline, every page,
                             the Algorithm Lab, the JSON API, admin auth and
                             the document lifecycle, plus an end-to-end check
                             that a document created through the UI is
                             immediately searchable
+tests/test_design.py         41 tests - the fonts really load, every colour
+                            token exists in both themes, no `var(--x)` is
+                            undefined, the stylesheet parses, and every
+                            text/background pair clears WCAG AA
 ```
 
 Tests run against a throw-away SQLite file in a temp directory, so the real
@@ -237,14 +244,51 @@ random `(text, pattern)` pairs; the corpus tests assert that KMP and
 Rabin–Karp agree on every phrase they examine.
 
 ```bash
-python -m pytest -q                     # 233 tests
+python -m pytest -q                     # 277 tests
 python -m pytest tests/test_algorithms.py -q
 python -m pyflakes algorithms core database indexing routes tests app.py
 ```
 
 ---
 
-## 8. Sample corpus
+## 8. Interface
+
+Hand-written CSS, no framework, no CDN — the whole front end is three files
+and works offline.
+
+**Type.** Three self-hosted variable faces (~100 KB, latin subset, SIL OFL):
+
+| role | face | why |
+| --- | --- | --- |
+| body & UI | `Inter var` | high x-height, stays legible at 12 px in tables and traces |
+| headings, numbers | `Space Grotesk var` | geometric, gives headings and stat tiles a distinct voice |
+| code, metrics, step traces | `JetBrains Mono var` | one fixed advance width, so indices and columns line up |
+
+Numbers use `font-variant-numeric: tabular-nums`, which stops the stat
+counters and benchmark tables from twitching while they animate.
+
+**Theme.** Everything is a CSS custom property in two blocks — `:root` (dark)
+and `[data-theme="light"]`. Colours that carry meaning get a *semantic* token
+(`--ok-text`, `--warn-text`, `--brand-2-text`, `--tint-text`, …) rather than
+reusing the neon hex directly, because `#22d3ee` scores 10.8:1 on a near-black
+page and about 2:1 on white. `tests/test_design.py` computes the WCAG ratio for
+every text/background pair in both themes; the worst pair right now is 4.60:1.
+
+Also worth knowing:
+
+* the theme is applied by a small inline `<head>` script, so a returning
+  light-theme visitor never sees a dark flash;
+* `:focus-visible` rings on everything keyboard-reachable;
+* `prefers-reduced-motion: reduce` disables the entrance animations, hover
+  lifts and smooth scrolling;
+* the graph and chart canvases read their palette from the CSS variables and
+  repaint when the theme flips, so light mode is not a dark canvas on a white
+  page;
+* progressive enhancement — every page works with JavaScript disabled.
+
+---
+
+## 9. Sample corpus
 
 49 original documents written for this project (no external text), grouped by
 category: Artificial Intelligence, Machine Learning, Data Science, Cloud
@@ -256,7 +300,7 @@ cross-reference each other with `[[document-slug]]`, which is what produces the
 
 ---
 
-## 9. Security and robustness notes
+## 10. Security and robustness notes
 
 * every SQL statement uses bound parameters; dynamic identifiers (sort column,
   direction) go through an explicit allow-list — `'; DROP TABLE documents; --`

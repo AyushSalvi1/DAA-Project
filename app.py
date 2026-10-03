@@ -17,16 +17,22 @@ the document graph and registers every route.
 from __future__ import annotations
 
 import logging
+import mimetypes
 import os
 import sys
 from datetime import datetime
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
+from werkzeug.exceptions import NotFound
 
 # make the project importable no matter where the process was started
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
+
+# Windows has no built-in mapping for woff2, so the self-hosted variable
+# fonts would otherwise be served as application/octet-stream.
+mimetypes.add_type("font/woff2", ".woff2")
 
 from core.service import NexaService            # noqa: E402
 from routes.admin_routes import bp as admin_bp  # noqa: E402
@@ -68,6 +74,20 @@ def create_app(db_path: str | None = None, seed: bool = True) -> Flask:
     app.register_blueprint(algorithms_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp)
+
+    # The self-hosted variable fonts are served by an explicit rule rather
+    # than Flask's static handler: Windows has no registry entry for .woff2,
+    # so the generic path would label them application/octet-stream.
+    @app.get("/static/fonts/<path:filename>")
+    def font_file(filename: str):
+        if not filename.endswith(".woff2") or "/" in filename or "\\" in filename:
+            raise NotFound(filename)
+        return send_from_directory(
+            os.path.join(app.static_folder, "fonts"),
+            filename,
+            mimetype="font/woff2",
+            max_age=60 * 60 * 24 * 365,
+        )
 
     # ------------------------------------------------------ template glue
     @app.context_processor

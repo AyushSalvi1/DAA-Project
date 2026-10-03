@@ -179,13 +179,24 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
+    /* Palette comes from the CSS custom properties so the canvas follows
+       the light/dark theme toggle. */
+    const token = (name, fallback) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+    const faintEdge = token("--border", "rgba(148,163,208,.14)");
+    const dimNode = token("--surface-3", "rgba(148,163,208,.22)");
+    const dimRing = token("--border-strong", "rgba(148,163,208,.4)");
+    const dimLabel = token("--text-2", "rgba(200,210,235,.7)");
+    const ring = token("--text", "#e8ecf8");
+    const fontStack = '"Inter var", "Segoe UI", system-ui, sans-serif';
+
     EDGES.forEach(edge => {
       const a = positions[edge.source], b = positions[edge.target];
       if (!a || !b) return;
       const onPath = highlightPath.has(edge.source) && highlightPath.has(edge.target);
       ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
       ctx.strokeStyle = onPath ? "rgba(34,211,238,.85)" :
-        (visited.has(edge.source) ? "rgba(111,139,255,.45)" : "rgba(148,163,208,.14)");
+        (visited.has(edge.source) ? "rgba(111,139,255,.45)" : faintEdge);
       ctx.lineWidth = onPath ? 2.2 : 1.1;
       ctx.stroke();
     });
@@ -194,18 +205,22 @@
       const p = positions[node.id];
       const active = visited.has(node.id);
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = active ? "#6f8bff" : "rgba(148,163,208,.22)";
+      ctx.fillStyle = active ? "#6f8bff" : dimNode;
       ctx.fill();
-      ctx.strokeStyle = active ? "#e8ecf8" : "rgba(148,163,208,.4)";
+      ctx.strokeStyle = active ? ring : dimRing;
       ctx.lineWidth = 1.2; ctx.stroke();
-      ctx.fillStyle = active ? "#08122a" : "rgba(200,210,235,.7)";
-      ctx.font = 'bold 10px "Inter", sans-serif';
+      ctx.fillStyle = active ? "#08122a" : dimLabel;
+      ctx.font = `bold 10px ${fontStack}`;
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText("#" + node.id, p.x, p.y);
     });
   }
 
   window.addEventListener("resize", () => { positions = {}; draw(); });
+
+  /* the canvas reads its palette from CSS variables - repaint on theme change */
+  new MutationObserver(() => draw())
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   document.getElementById("run-traversal").addEventListener("click", async function () {
     const button = this;

@@ -14,3 +14,4 @@ blinker==1.9.0
 
 # Development / testing
 pytest==8.4.2
+tinycss2==1.4.0          # strict CSS parsing in tests/test_design.py
