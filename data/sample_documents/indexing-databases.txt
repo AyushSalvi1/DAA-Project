@@ -1,0 +1,16 @@
+TITLE: Database Indexing: B-Trees, Hash Indexes and Query Plans
+CATEGORY: Databases
+AUTHOR: V. Aleksyev
+KEYWORDS: database index, b-tree, binary search, hash index, query plan, composite index
+SUMMARY: An index is an auxiliary structure that trades write cost and storage for read speed. It should only exist to serve a query someone actually runs.
+----------------------------------------------------------------------
+
+An index is an auxiliary structure that trades write cost and storage for read speed. It should only exist to serve a query someone actually runs.
+
+A B-tree keeps keys sorted and the tree balanced, so each node is nearly full and every leaf is at the same depth. That gives a fixed small number of page reads per lookup, which is what matters when a page read is a disk seek. The binary search at the heart of each node is the algorithm in [[searching-algorithms]].
+
+A hash index maps keys directly to row locations, giving constant-time equality lookups but no ordering, so it cannot serve range queries or ordered output. It also degrades under collisions, which is the same trade-off the hash table makes in [[searching-algorithms]].
+
+Composite indexes are ordered left to right, so a composite index on region then date can serve a query filtering both, or filtering region alone, but not filtering date alone. Covering indexes include the columns the query needs so the lookup never visits the table itself.
+
+The query planner chooses between them using statistics, so stale statistics produce bad plans. Partial and expression indexes extend the idea to subsets and computed columns. Write amplification is the cost of maintaining an index on every insert.

@@ -1,0 +1,16 @@
+TITLE: TCP and IP: Connection, Reliability and Routing
+CATEGORY: Computer Networks
+AUTHOR: T. Banerjee
+KEYWORDS: tcp, ip, three way handshake, congestion control, sequence numbers, routing
+SUMMARY: The internet protocol is connectionless and best effort. It forwards packets independently and makes no promise about delivery, order or duplication, which keeps routers simple and fast. Reliability is added above it.
+----------------------------------------------------------------------
+
+The internet protocol is connectionless and best effort. It forwards packets independently and makes no promise about delivery, order or duplication, which keeps routers simple and fast. Reliability is added above it.
+
+The transmission control protocol provides a reliable byte stream on top of IP. It assigns sequence numbers so the receiver can detect loss and reorder, acknowledges received bytes, and retransmits what is missing. The connection is established by a three-way handshake: a request, an acknowledgement, and a final acknowledgement. Teardown is symmetric, since each side may close independently.
+
+The user datagram protocol provides no guarantees at all, which is appropriate for real-time media and for name resolution, where a retry is cheaper than a guarantee. QUIC runs on top of UDP and rebuilds the reliability features in user space, which allows connection migration and zero round-trip resumption.
+
+TCP flow control protects the receiver with a window; congestion control protects the network with a congestion window. Slow start doubles the window each round trip until loss occurs, then multiplicative decrease halves it, and modern variants such as CUBIC and BBR refine the response.
+
+Routing happens at the IP layer. Distance vector protocols such as RIP exchange whole distance tables and converge slowly; link state protocols such as OSPF build a map and run Dijkstra's algorithm over it, converging faster. That algorithm is covered in [[graph-algorithms]].

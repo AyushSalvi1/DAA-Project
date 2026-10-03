@@ -1,0 +1,16 @@
+TITLE: JavaScript Core: Values, Scope and the Event Loop
+CATEGORY: Web Development
+AUTHOR: A. D'Souza
+KEYWORDS: javascript, event loop, closures, promises, prototype, single threaded
+SUMMARY: JavaScript is single threaded with asynchronous callbacks, which is the source of both its simplicity and its characteristic bugs.
+----------------------------------------------------------------------
+
+JavaScript is single threaded with asynchronous callbacks, which is the source of both its simplicity and its characteristic bugs.
+
+Values have eight types, and objects are reference values with a prototype chain. Property lookup walks the chain, which is why a missing property read is undefined rather than an error, and why assigning a new property to a plain object is safe while traversing a hostile prototype chain is not.
+
+Scope is lexical, determined by where code is written rather than where it runs. A closure is a function plus the variables it captured when it was created, which is why a callback still sees the correct loop variable when the loop has finished.
+
+The event loop has one call stack, one microtask queue for promise callbacks, and a macrotask queue for timers and events. After the current task and all microtasks complete, the next macrotask runs. This is why a resolved promise callback runs before a setTimeout of zero, and why a long synchronous loop blocks the whole page.
+
+Promises represent a future value with pending, fulfilled and rejected states, and combinators such as all, race and any express concurrency. Async functions are syntax over promises. Timers are minimum delays, not guarantees.

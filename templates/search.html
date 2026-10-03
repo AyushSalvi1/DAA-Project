@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="{{ url_for('search.search') }}" method="get" class="section" autocomplete="off">
+  <div class="search-field" data-autocomplete style="border-radius:14px;padding:.4rem .4rem .4rem 1rem">
+    <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M10 3a7 7 0 1 1-4.5 12.4l-3 3a1 1 0 0 1-1.4-1.4l3-3A7 7 0 0 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="currentColor"/></svg>
+    <input type="search" name="q" value="{{ query }}" placeholder='Search&hellip; wrap a phrase in "quotes" to force exact matching'
+           aria-label="Search query" maxlength="200" style="font-size:1.02rem">
+    <button type="submit" class="btn btn-primary">Search</button>
+    <ul class="suggestions" role="listbox" hidden></ul>
+  </div>
+
+  <div class="filters" style="margin-top:.85rem">
+    <select name="category" data-submit-on-change aria-label="Filter by category">
+      <option value="all">All categories</option>
+      {% for row in categories %}
+        <option value="{{ row.category }}" {{ 'selected' if category == row.category }}>{{ row.category }} ({{ row.count }})</option>
+      {% endfor %}
+    </select>
+    <select name="sort" data-submit-on-change aria-label="Sort results">
+      <option value="relevance" {{ 'selected' if sort == 'relevance' }}>Sort: relevance</option>
+      <option value="quick" {{ 'selected' if sort == 'quick' }}>Sort: relevance (quick sort)</option>
+      <option value="title" {{ 'selected' if sort == 'title' }}>Sort: title (merge sort)</option>
+      <option value="newest" {{ 'selected' if sort == 'newest' }}>Sort: newest first</option>
+    </select>
+    <input type="number" name="min_score" value="{{ min_score if min_score else '' }}" step="0.01" min="0" max="1"
+           placeholder="Min relevance" style="width:150px" aria-label="Minimum relevance score">
+    <select name="per_page" data-submit-on-change aria-label="Results per page" style="width:130px">
+      {% for size in [5, 8, 12, 20] %}
+        <option value="{{ size }}" {{ 'selected' if per_page == size }}>{{ size }} per page</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-sm">Apply</button>
+  </div>
+</form>
+
+{% if error %}
+  <div class="alert alert-warn">{{ error }}</div>
+{% endif %}
+
+{% if payload %}
+  <div class="results-meta">
+    <div class="stat-line">
+      <span class="chip chip-brand">About {{ payload.total_results | compact }} document{{ '' if payload.total_results == 1 else 's' }}</span>
+      <span class="chip">Searched {{ payload.documents_searched }} indexed document{{ '' if payload.documents_searched == 1 else 's' }}</span>
+      <span class="chip">Completed in <strong style="color:var(--text)">{{ payload.elapsed_ms | ms }} ms</strong></span>
+      {% if payload.candidates_examined is defined %}
+        <span class="chip">{{ payload.candidates_examined }} candidate{{ '' if payload.candidates_examined == 1 else 's' }} scored</span>
+      {% endif %}
+    </div>
+    <div class="stat-line">
+      {% if payload.unknown_terms %}
+        <span class="chip chip-warn" title="Terms that are not in the vocabulary; the Trie reported them in O(L) each">
+          not in vocabulary: {{ payload.unknown_terms | join(', ') }}
+        </span>
+      {% endif %}
+      {% if payload.stop_words_removed %}
+        <span class="chip">stop words removed: {{ payload.stop_words_removed | unique | join(', ') }}</span>
+      {% endif %}
+      {% if payload.phrases %}
+        <span class="chip chip-ok">exact phrase: {{ payload.phrases | join(', ') }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if payload.results %}
+    {% for row in payload.results %}
+      <article class="result">
+        <div class="result-head">
+          <div style="min-width:0">
+            <a class="result-title" href="{{ url_for('search.document', doc_id=row.doc_id) }}">{{ row.title }}</a>
+            <div class="result-url">{{ row.url or 'nexasearch://document/' ~ row.doc_id }}</div>
+          </div>
+          <div class="score-box">
+            <div class="score-value">{{ row.score_percent | percent }}</div>
+            <div class="score-bar"><span data-fill="{{ row.score_percent }}"></span></div>
+            <div class="score-label">relevance</div>
+          </div>
+        </div>
+
+        <p class="result-snippet">{{ row.snippet | safe }}</p>
+
+        <div class="result-foot">
+          <span class="chip chip-brand">{{ row.category }}</span>
+          <span>{{ row.author }}</span>
+          <span>&middot;</span>
+          <span>{{ row.created[:10] }}</span>
+          <span>&middot;</span>
+          <span>{{ row.content_length }} chars</span>
+          {% if row.matched_terms %}
+            <span>&middot;</span>
+            <span>matched
+              {% for term in row.matched_terms %}<code class="tiny">{{ term }}</code>{{ ' ' }}{% endfor %}
+            </span>
+          {% endif %}
+          {% if row.phrase_matches %}
+            <span class="chip chip-ok">{{ row.phrase_matches }} exact phrase match(es)</span>
+          {% endif %}
+        </div>
+
+        <details class="accordion" style="margin-top:.7rem">
+          <summary>Why this document? (score breakdown)</summary>
+          <div class="accordion-body">
+            <div class="formula-box">
+              {{ formula }}
+            </div>
+            <div class="table-wrap" style="margin-top:.8rem">
+              <table>
+                <thead><tr><th>Signal</th><th class="num">Value</th><th class="num">Weight</th><th class="num">Contribution</th></tr></thead>
+                <tbody>
+                  {% for part in row.score_breakdown %}
+                    <tr>
+                      <td>{{ part.signal }}</td>
+                      <td class="num">{{ '%.4f' % part.value if part.value is number else part.value }}</td>
+                      <td class="num">{{ part.weight }}</td>
+                      <td class="num">{{ '%.4f' % part.contribution if part.contribution is number else part.contribution }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <p class="tiny muted" style="margin-top:.6rem">
+              boosts: {{ row.score_detail.boost }}x
+              {{ '(' ~ row.score_detail.boost_reasons | join(', ') ~ ')' if row.score_detail.boost_reasons else '(none)' }}
+              &middot; raw TF-IDF cosine {{ '%.4f' % row.raw_tfidf }}
+              &middot; PageRank {{ '%.4f' % row.pagerank }}
+              &middot; term coverage {{ '%.0f' % (row.term_coverage * 100) | int }}%
+            </p>
+          </div>
+        </details>
+      </article>
+    {% endfor %}
+
+    {% if payload.pages > 1 %}
+      <nav class="pagination" aria-label="Result pages">
+        <a class="{{ 'disabled' if payload.page <= 1 }}" href="{{ url_for('search.search', q=query, page=payload.page - 1, category=category, sort=sort, per_page=per_page) }}">&larr; Prev</a>
+        {% for number in range(1, payload.pages + 1) %}
+          {% if number <= 2 or number > payload.pages - 2 or (number >= payload.page - 2 and number <= payload.page + 2) %}
+            {% if number == payload.page %}
+              <span class="current">{{ number }}</span>
+            {% else %}
+              <a href="{{ url_for('search.search', q=query, page=number, category=category, sort=sort, per_page=per_page) }}">{{ number }}</a>
+            {% endif %}
+          {% elif number == 3 or number == payload.pages - 2 %}
+            <span class="disabled">&hellip;</span>
+          {% endif %}
+        {% endfor %}
+        <a class="{{ 'disabled' if payload.page >= payload.pages }}" href="{{ url_for('search.search', q=query, page=payload.page + 1, category=category, sort=sort, per_page=per_page) }}">Next &rarr;</a>
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="card empty-state">
+      <div class="big">&#128533;</div>
+      <h3>No documents matched</h3>
+      <p class="muted">
+        {% if payload.is_empty %}
+          {{ payload.message }}
+        {% else %}
+          Every indexed term was checked through the Trie and no posting list contained them.
+          Try fewer words, or check the spelling.
+        {% endif %}
+      </p>
+      {% if payload.suggestions %}
+        <div class="chip-row" style="justify-content:center;margin-top:1rem">
+          {% for row in payload.suggestions %}<a class="chip chip-brand" href="{{ url_for('search.search', q=row.word) }}">{{ row.word }}</a>{% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="grid grid-2" style="margin-top:2rem">
+    <div class="card">
+      <div class="card-head"><h3>Algorithms used for this query</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Algorithm</th><th>What it did</th><th class="num">Time (ms)</th></tr></thead>
+          <tbody>
+            {% for step in payload.algorithms_used %}
+              <tr>
+                <td class="num">{{ loop.index }}</td>
+                <td>{{ step.algorithm }}</td>
+                <td class="muted small">{{ step.detail }}</td>
+                <td class="num">{{ step.time_ms | ms }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Query analysis</h3></div>
+      <dl class="kv">
+        <dt>Raw query</dt><dd class="mono">{{ payload.query }}</dd>
+        <dt>Normalized</dt><dd class="mono">{{ payload.normalized_query }}</dd>
+        <dt>Tokens (stemmed)</dt><dd class="mono">{{ payload.tokens | join(', ') or '-' }}</dd>
+        <dt>In vocabulary</dt><dd class="mono">{{ payload.known_terms | join(', ') or '-' }}</dd>
+        <dt>Unknown</dt><dd class="mono">{{ payload.unknown_terms | join(', ') or '-' }}</dd>
+        <dt>Phrases</dt><dd class="mono">{{ payload.phrases | join(', ') or '-' }}</dd>
+        <dt>Stop words removed</dt><dd class="mono">{{ payload.stop_words_removed | unique | join(', ') or '-' }}</dd>
+        <dt>Total time</dt><dd class="mono">{{ payload.elapsed_ms | ms }} ms</dd>
+      </dl>
+      {% if payload.phrase_report %}
+        <h4 style="margin-top:1rem">KMP vs Rabin-Karp cross-check</h4>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Phrase</th><th>Document</th><th class="num">KMP</th><th class="num">Rabin-Karp</th><th>Agree</th></tr></thead>
+            <tbody>
+              {% for row in payload.phrase_report %}
+                <tr>
+                  <td class="mono tiny">{{ row.phrase }}</td>
+                  <td><a href="{{ url_for('search.document', doc_id=row.doc_id) }}">{{ row.title }}</a></td>
+                  <td class="num">{{ row.kmp_matches }}</td>
+                  <td class="num">{{ row.rabin_karp_matches }}</td>
+                  <td>{% if row.agrees %}<span class="chip chip-ok">yes</span>{% else %}<span class="chip chip-err">no</span>{% endif %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <details class="accordion" style="margin-top:1rem">
+    <summary>How the final relevance score is computed</summary>
+    <div class="accordion-body">
+      <div class="formula-box">{{ formula }}</div>
+      <div class="table-wrap" style="margin-top:.8rem">
+        <table>
+          <thead><tr><th>Signal</th><th class="num">Weight</th><th>Why this weight</th></tr></thead>
+          <tbody>
+            {% for row in weights %}
+              <tr>
+                <td>{{ row.label }}</td>
+                <td class="num">{{ row.weight }}</td>
+                <td class="muted small">{{ row.why }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted" style="margin-top:.7rem">
+        Every signal is normalised to [0, 1] so the weights are directly comparable and the
+        score stays interpretable. TF-IDF cosine is rescaled against the best candidate of the
+        current query, and PageRank is min-max scaled across the corpus. After the weighted sum
+        the score is multiplied by small field boosts and a tiny popularity term breaks ties.
+      </p>
+    </div>
+  </details>
+{% endif %}
+
+{% endblock %}

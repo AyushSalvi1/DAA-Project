@@ -1,0 +1,18 @@
+TITLE: Python Fundamentals: Objects, Iteration and Complexity
+CATEGORY: Python
+AUTHOR: J. Whitfield
+KEYWORDS: python, list, dictionary, iteration, generators, comprehension, garbage collection
+SUMMARY: Python is dynamically typed and garbage collected, with everything being an object and every object having a type and an identity.
+----------------------------------------------------------------------
+
+Python is dynamically typed and garbage collected, with everything being an object and every object having a type and an identity.
+
+The built-in containers each have a deliberate complexity. Appending to a list is amortised O(1). Indexing and slicing are O(1) at the start and O(n) at the end of a slice, so avoid s[1:] in a loop. Looking up a dictionary key is O(1) average with the same collision caveat as any hash table, but deletion never shifts the array, which is why iteration order is stable. Sets behave like dictionaries without values. Tuples are immutable, hashable and therefore usable as dictionary keys.
+
+Dictionaries preserve insertion order, which makes them the tool for ordered aggregation, counting with a counter-like pattern, and grouping.
+
+Iteration is the core abstraction. A generator yields values lazily, so a pipeline over a large source uses constant memory. A list comprehension builds a list eagerly and is faster than an explicit loop because the bytecode avoids repeated attribute lookup. Generator expressions do the same lazily.
+
+Memory behaviour follows from this: a comprehension that accumulates is O(n) space, while a generator pipeline is O(1) plus whatever the consumer keeps.
+
+This project is written in Python with every data structure for the search engine built by hand precisely because the built-ins would hide the algorithms.

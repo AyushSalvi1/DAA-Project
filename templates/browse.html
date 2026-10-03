@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>Browse the corpus</h1>
+  <div class="rule"></div>
+  <span class="chip chip-brand">{{ total | compact }} document{{ '' if total == 1 else 's' }}</span>
+</div>
+
+<form action="{{ url_for('search.browse') }}" method="get" class="filters" style="margin-bottom:1.2rem">
+  <input type="search" name="q" value="{{ search_term }}" placeholder="Filter by title, content or keyword" style="flex:1;min-width:220px">
+  <select name="category" data-submit-on-change>
+    <option value="all">All categories</option>
+    {% for row in categories %}
+      <option value="{{ row.category }}" {{ 'selected' if category == row.category }}>{{ row.category }} ({{ row.count }})</option>
+    {% endfor %}
+  </select>
+  <select name="sort" data-submit-on-change>
+    <option value="newest" {{ 'selected' if sort == 'newest' }}>Newest first</option>
+    <option value="oldest" {{ 'selected' if sort == 'oldest' }}>Oldest first</option>
+    <option value="title" {{ 'selected' if sort == 'title' }}>Title A-Z</option>
+    <option value="hits" {{ 'selected' if sort == 'hits' }}>Most viewed</option>
+  </select>
+  <button type="submit" class="btn btn-sm">Apply</button>
+</form>
+
+{% for doc in documents %}
+  <article class="result">
+    <div class="result-head">
+      <div style="min-width:0">
+        <a class="result-title" href="{{ url_for('search.document', doc_id=doc.id) }}">{{ doc.title }}</a>
+        <div class="result-url">{{ doc.url or 'nexasearch://document/' ~ doc.id }}</div>
+      </div>
+      <div class="score-box">
+        <div class="score-value">{{ doc.hits }}</div>
+        <div class="score-label">views</div>
+      </div>
+    </div>
+    <p class="result-snippet">{{ doc.summary }}</p>
+    <div class="result-foot">
+      <span class="chip chip-brand">{{ doc.category }}</span>
+      <span>{{ doc.author }}</span><span>&middot;</span>
+      <span>{{ doc.created[:10] }}</span><span>&middot;</span>
+      <span>{{ doc.token_count }} tokens</span>
+      <div class="tag-list" style="margin-left:.4rem">
+        {% for keyword in doc.keywords[:4] %}<a class="tag" href="{{ url_for('search.search', q=keyword) }}">{{ keyword }}</a>{% endfor %}
+      </div>
+    </div>
+  </article>
+{% else %}
+  <div class="card empty-state">
+    <div class="big">&#128269;</div>
+    <h3>Nothing matches that filter</h3>
+    <p class="muted">Try clearing the search box or choosing a different category.</p>
+  </div>
+{% endfor %}
+
+{% if pages > 1 %}
+  <nav class="pagination">
+    <a class="{{ 'disabled' if page <= 1 }}" href="{{ url_for('search.browse', page=page - 1, category=category, sort=sort, q=search_term) }}">&larr; Prev</a>
+    {% for number in range(1, pages + 1) %}
+      {% if number == page %}
+        <span class="current">{{ number }}</span>
+      {% else %}
+        <a href="{{ url_for('search.browse', page=number, category=category, sort=sort, q=search_term) }}">{{ number }}</a>
+      {% endif %}
+    {% endfor %}
+    <a class="{{ 'disabled' if page >= pages }}" href="{{ url_for('search.browse', page=page + 1, category=category, sort=sort, q=search_term) }}">Next &rarr;</a>
+  </nav>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,16 @@
+TITLE: String Matching: Naive, KMP and Rabin-Karp
+CATEGORY: Algorithms
+AUTHOR: Prof. S. Iyer
+KEYWORDS: string matching, kmp, lps array, rabin karp, rolling hash, z algorithm
+SUMMARY: String matching asks where a pattern occurs in a text. For text of length n and pattern of length m, the naive matcher is O((n - m + 1) * m) in the worst case because it restarts the text pointer after every mismatch.
+----------------------------------------------------------------------
+
+String matching asks where a pattern occurs in a text. For text of length n and pattern of length m, the naive matcher is O((n - m + 1) * m) in the worst case because it restarts the text pointer after every mismatch.
+
+KMP removes the restart. Before searching it builds the LPS array, where lps[i] is the length of the longest proper prefix of the pattern up to i that is also its suffix. On a mismatch at pattern position j, the matcher sets j to lps[j - 1] instead of zero, because the matched part is a suffix of the new candidate. The text pointer never moves backwards, so the search is O(n + m) with O(m) space, and overlapping matches such as abab found in ababab are reported correctly.
+
+Rabin-Karp hashes the pattern once and slides a window across the text, recomputing each window hash in O(1) by removing the outgoing character's contribution and adding the incoming one. Only windows whose hash matches are verified character by character. Hashing is many-to-one, so false positives are expected, and the verification step is what makes the result correct. Average time is O(n + m), worst case O(n * m) when every window collides. Its real advantage is matching many patterns in a single pass over the text.
+
+The Z-algorithm computes the longest prefix match at every position, giving O(n) matching plus pattern matching at every prefix. Aho-Corasick builds a trie of patterns and reports all of them in one pass, at O(total pattern length) amortised per character.
+
+In this project both KMP and Rabin-Karp run on quoted phrases and their match positions are compared as a correctness cross-check.

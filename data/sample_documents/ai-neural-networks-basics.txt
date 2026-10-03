@@ -1,0 +1,14 @@
+TITLE: How Neural Networks Learn: A First Model
+CATEGORY: Artificial Intelligence
+AUTHOR: S. Kulkarni
+KEYWORDS: neural network, perceptron, activation function, backpropagation, gradient descent
+SUMMARY: A neural network is a stack of layers of simple units. Each unit computes a weighted sum of its inputs, adds a bias, and passes the result through a non-linear activation function such as the sigmoid, the hyperbolic tangent, or the rectified linear unit.
+----------------------------------------------------------------------
+
+A neural network is a stack of layers of simple units. Each unit computes a weighted sum of its inputs, adds a bias, and passes the result through a non-linear activation function such as the sigmoid, the hyperbolic tangent, or the rectified linear unit.
+
+The 1958 perceptron is the smallest example. For inputs x with weights w and bias b, the output is the sign of the dot product. The perceptron learning rule adjusts the weights towards the target whenever it misclassifies. It converges only if the data is linearly separable, a limitation discovered by Minsky and Papert that stalled connectionism for years.
+
+Deep networks remove that limitation by stacking layers, so that a linear decision boundary in the input space becomes a highly non-linear boundary after composition. Learning proceeds by gradient descent: compute the loss, differentiate it with respect to every weight using the chain rule backwards through the layers, and move each weight opposite the gradient. This procedure is called backpropagation.
+
+The cost of a single training step is proportional to the number of weights, and the number of steps needed is roughly proportional to the inverse of the learning rate, so training is computationally expensive. Modern practice uses adaptive learning rates, mini-batches and regularisation. See [[ml-deep-learning]] for architectures and [[ml-model-evaluation]] for measuring the result.

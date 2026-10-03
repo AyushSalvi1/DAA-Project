@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>Complexity Explorer</h1>
+  <div class="rule"></div>
+</div>
+<p class="muted">
+  Big-O notation bounds how the cost of an algorithm grows with the input size <em>n</em>.
+  The chart below plots each class on the same axes so the difference between O(n), O(n log n)
+  and O(n<sup>2</sup>) is visible rather than theoretical. The vertical axis is logarithmic,
+  because that is the only way to show O(1) and O(2<sup>n</sup>) in the same picture.
+</p>
+
+<div class="card">
+  <div class="graph-legend" style="margin:0 0 .6rem">
+    <span><span class="legend-dot" style="background:#6f8bff"></span>O(1)</span>
+    <span><span class="legend-dot" style="background:#22d3ee"></span>O(log n)</span>
+    <span><span class="legend-dot" style="background:#a855f7"></span>O(n)</span>
+    <span><span class="legend-dot" style="background:#34d399"></span>O(n log n)</span>
+    <span><span class="legend-dot" style="background:#fbbf24"></span>O(n&sup2;)</span>
+    <span><span class="legend-dot" style="background:#f87171"></span>O(2&#8319;)</span>
+  </div>
+  <canvas class="chart" id="growth-chart" data-height="340"></canvas>
+</div>
+
+<script id="growth-data" type="application/json">{{ series | tojson }}</script>
+
+<div class="section" style="margin-top:2rem">
+  <div class="section-title"><h2>Complexity classes</h2><div class="rule"></div></div>
+  <div class="complexity-grid">
+    {% for row in complexity_classes %}
+      <div class="card complexity-card {{ 'good' if not row.grows and row.symbol != 'O(1)' }}{{ 'badges' if row.symbol == 'O(n^2)' }}{{ 'exp' if row.symbol == 'O(2^n)' }}">
+        <div class="symbol">{{ row.symbol }}</div>
+        <h3>{{ row.name }}</h3>
+        <p class="muted small">{{ row.example }}</p>
+        <div class="tag-list">
+          {% for algo in row.algorithms %}<span class="tag">{{ algo }}</span>{% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title"><h2>Big-O, Big-Theta, Big-Omega</h2><div class="rule"></div></div>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3>Big-O (upper bound)</h3>
+      <p class="muted small">
+        <code>f(n) = O(g(n))</code> means <em>f</em> grows no faster than a constant multiple of
+        <em>g</em> for all large n. It is an upper bound, so it says nothing about the best case.
+        Merge sort is <code>O(n log n)</code> because it never does better than that bound.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Big-Theta (tight bound)</h3>
+      <p class="muted small">
+        <code>f(n) = &Theta;(g(n))</code> means <em>f</em> grows at the same rate as <em>g</em>
+        asymptotically - both an O and an &Omega; bound hold. Merge sort is
+        <code>&Theta;(n log n)</code> because the bound is tight for every input.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Big-Omega (lower bound)</h3>
+      <p class="muted small">
+        <code>f(n) = &Omega;(g(n))</code> means <em>f</em> grows at least as fast as a constant
+        multiple of <em>g</em>. It is a lower bound: linear search is <code>&Omega;(1)</code> in
+        the best case and <code>&Omega;(n)</code> in the worst case.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title"><h2>Interactive growth simulator</h2><div class="rule"></div></div>
+  <div class="card">
+    <div class="filters">
+      <label for="n-input" style="margin:0">Input size n =</label>
+      <input type="range" id="n-input" min="1" max="64" value="10" style="flex:1">
+      <span class="chip chip-brand" id="n-label">n = 10</span>
+    </div>
+    <div class="table-wrap" style="margin-top:1rem">
+      <table>
+        <thead><tr><th>Complexity</th><th class="num">Operations at this n</th><th>Visual bar (log scale)</th></tr></thead>
+        <tbody id="sim-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title"><h2>Where each project algorithm sits</h2><div class="rule"></div></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Algorithm</th><th>Family</th><th>Time</th><th>Space</th><th>Worst case</th></tr></thead>
+      <tbody>
+        {% for algo in algorithms %}
+          <tr>
+            <td><a href="{{ url_for('algorithms.visualizer', algo=algo.id) if algo.id in ['kmp','rabin_karp','trie','hash','bfs','dfs','dijkstra','merge_sort','quick_sort','binary_search'] else url_for('algorithms.algorithms_dashboard') }}">{{ algo.name }}</a></td>
+            <td><span class="chip">{{ algo.category }}</span></td>
+            <td class="mono tiny">{{ algo.time }}</td>
+            <td class="mono tiny">{{ algo.space }}</td>
+            <td class="mono tiny">{{ algo.worst }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById("growth-data").textContent);
+  const classes = ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n^2)", "O(2^n)"];
+  const labels = data.map(row => String(row.n));
+
+  window.NexaChart.render(document.getElementById("growth-chart"), {
+    labels: labels,
+    log: true,
+    series: classes.map(name => ({
+      name: name,
+      data: data.map(row => ({ x: row.n, y: Math.max(1, row[name]) }))
+    }))
+  });
+
+  const slider = document.getElementById("n-input");
+  const label = document.getElementById("n-label");
+  const body = document.getElementById("sim-body");
+
+  function render() {
+    const n = parseInt(slider.value, 10);
+    label.textContent = "n = " + n;
+    const bitLength = Math.max(1, Math.floor(Math.log2(n)) + 1);
+    const values = {
+      "O(1)": 1,
+      "O(log n)": bitLength,
+      "O(n)": n,
+      "O(n log n)": n * bitLength,
+      "O(n^2)": Math.pow(n, 2),
+      "O(2^n)": Math.min(Math.pow(2, n), 1e18)
+    };
+    const cap = 1e6;
+    body.innerHTML = classes.map(name => {
+      const value = values[name];
+      const width = Math.max(1, (Math.log10(Math.max(1, value)) / Math.log10(cap)) * 100);
+      return "<tr><td class=\"mono\">" + name + "</td><td class=\"num\">" +
+        (value >= 1e18 ? "&gt; 10^18" : value.toLocaleString()) +
+        "</td><td><div class=\"bar-track\"><span class=\"bar-fill\" data-fill=\"" + Math.min(100, width) +
+        "\"></span></div></td></tr>";
+    }).join("");
+    window.NexaFillBars(body);
+  }
+  slider.addEventListener("input", render);
+  render();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>System statistics</h1>
+  <div class="rule"></div>
+  <a class="btn btn-sm" href="{{ url_for('admin.stats', format='json') }}">Download JSON</a>
+</div>
+
+<div class="stat-grid">
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.tables.documents }}">0</span><span class="stat-label">Documents</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.tables.keywords }}">0</span><span class="stat-label">Keywords</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.search.total_searches }}">0</span><span class="stat-label">Searches</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.search.average_time_ms }}" data-decimals="3">0</span><span class="stat-label">Average time (ms)</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.search.success_rate }}">0</span><span class="stat-label">Success rate (%)</span>
+    <span class="stat-hint">{{ dashboard.search.empty_result_searches }} empty-result search(es)</span></div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Search execution time</h3><span class="tiny muted">last 20 queries (ms)</span></div>
+    <canvas class="chart" id="latency-chart" data-height="240"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>PageRank distribution</h3></div>
+    <canvas class="chart" id="pagerank-chart" data-height="240"></canvas>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem">
+  <div class="card">
+    <div class="card-head"><h3>Index internals</h3></div>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr><th>Trie nodes</th><td class="num">{{ dashboard.index.trie.nodes | compact }}</td></tr>
+          <tr><th>Trie terminals</th><td class="num">{{ dashboard.index.trie.terminals | compact }}</td></tr>
+          <tr><th>Max trie depth</th><td class="num">{{ dashboard.index.trie.max_depth }}</td></tr>
+          <tr><th>Postings</th><td class="num">{{ dashboard.index.postings | compact }}</td></tr>
+          <tr><th>Hash capacity</th><td class="num">{{ dashboard.index.hash_table.capacity }}</td></tr>
+          <tr><th>Hash load factor</th><td class="num">{{ dashboard.index.hash_table.load_factor }}</td></tr>
+          <tr><th>Hash collisions</th><td class="num">{{ dashboard.index.hash_table.collisions }}</td></tr>
+          <tr><th>Hash rehashes</th><td class="num">{{ dashboard.index.hash_table.rehashes }}</td></tr>
+          <tr><th>Index build (ms)</th><td class="num">{{ dashboard.index.build_time_ms }}</td></tr>
+          <tr><th>Graph nodes / edges</th><td class="num">{{ dashboard.graph.nodes }} / {{ dashboard.graph.edges }}</td></tr>
+          <tr><th>Average out-degree</th><td class="num">{{ dashboard.graph.average_degree }}</td></tr>
+          <tr><th>PageRank iterations</th><td class="num">{{ dashboard.pagerank.iterations }}</td></tr>
+          <tr><th>TF-IDF vocabulary</th><td class="num">{{ dashboard.tfidf.vocabulary }}</td></tr>
+          <tr><th>TF-IDF total tokens</th><td class="num">{{ dashboard.tfidf.total_tokens | compact }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Database row counts</h3></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Table</th><th class="num">Rows</th></tr></thead>
+        <tbody>
+          {% for table, count in dashboard.tables.items() %}
+            <tr><td class="mono">{{ table }}</td><td class="num">{{ count | compact }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const history = {{ recent | tojson }};
+  const pagerank = {{ dashboard.pagerank.top | tojson }};
+  const reversed = history.slice().reverse();
+
+  window.NexaChart.render(document.getElementById("latency-chart"), {
+    labels: reversed.map(row => row.query.slice(0, 14)),
+    series: [{ name: "ms", data: reversed.map((row, index) => ({ x: index, y: row.execution_time })) }],
+    bar: true
+  });
+
+  window.NexaChart.render(document.getElementById("pagerank-chart"), {
+    labels: pagerank.map(row => String(row.node)),
+    series: [{ name: "pagerank", data: pagerank.map(row => ({ x: 0, y: row.score })) }],
+    bar: true
+  });
+})();
+</script>
+{% endblock %}

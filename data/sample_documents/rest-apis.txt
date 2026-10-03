@@ -1,0 +1,16 @@
+TITLE: REST API Design and Error Contracts
+CATEGORY: Web Development
+AUTHOR: A. D'Souza
+KEYWORDS: rest api, json, http verbs, pagination, idempotency, rate limiting, error handling
+SUMMARY: REST organises a system around resources with URLs that name them and HTTP methods that say what to do. GET is safe and idempotent, so it may be cached and retried. PUT and DELETE are idempotent. POST is neither and must not be retried blindly.
+----------------------------------------------------------------------
+
+REST organises a system around resources with URLs that name them and HTTP methods that say what to do. GET is safe and idempotent, so it may be cached and retried. PUT and DELETE are idempotent. POST is neither and must not be retried blindly.
+
+Status codes form a contract: 200 for a successful read, 201 with a location header for a created resource, 204 for success with no body, 400 for a malformed request, 401 when unauthenticated, 403 when authenticated but not permitted, 404 when absent, 409 on a conflicting state and 429 when rate limited. A 200 with an error body breaks every client that relies on the status.
+
+Large collections must paginate, with a cursor for stable traversal and an offset for jumping to a page.
+
+Idempotency keys make unsafe operations safe to retry: the server stores the key and replays the original result. Rate limits protect the service, and the contract should expose the limit, the remaining allowance and when it resets.
+
+Input validation belongs at the boundary, and the error response should say which field failed and why, without leaking internals. This project validates every query, document and algorithm parameter at the route layer and returns structured errors rather than stack traces.

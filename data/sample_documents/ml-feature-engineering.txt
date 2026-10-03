@@ -1,0 +1,14 @@
+TITLE: Feature Engineering and the Curse of Dimensionality
+CATEGORY: Machine Learning
+AUTHOR: S. Kulkarni
+KEYWORDS: feature engineering, feature selection, scaling, curse of dimensionality, one hot encoding
+SUMMARY: Features are the inputs a model sees, and in most tabular problems they matter more than the learning algorithm.
+----------------------------------------------------------------------
+
+Features are the inputs a model sees, and in most tabular problems they matter more than the learning algorithm.
+
+Raw values rarely need no transformation. Numeric features usually need scaling: standardisation subtracts the mean and divides by the standard deviation, while min-max scaling maps to a fixed interval. Without scaling, distance-based methods and regularised linear models are dominated by whichever feature has the largest units. Categorical variables become indicator columns or embeddings. Text becomes counts, weights or embeddings, which connects directly to the term weighting ideas in [[string-matching-algorithms]] and to ranking.
+
+Feature selection reduces noise and cost. Filter methods score features independently of the model, wrapper methods search subsets using model performance at an exponential cost, and embedded methods such as L1 regularisation select during training.
+
+The curse of dimensionality says that as the number of dimensions grows, data becomes sparse and nearest-neighbour distances concentrate: in high dimensions the ratio between the largest and smallest distances shrinks towards one. Consequences are exponential growth in the volume needed to cover the space, meaningful deterioration of distance-based methods, and a proliferation of almost collinear combinations of features. Mitigations are feature selection, supervised projection methods, and simply collecting more data.

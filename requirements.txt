@@ -1,0 +1,16 @@
+# NexaSearch — run requirements
+# Only the web framework and the test runner: every algorithm in this project
+# (searching, string matching, sorting, hashing, tries, graph traversal,
+# Dijkstra, TF-IDF, PageRank and the ranking fusion) is implemented by hand
+# using nothing but the Python standard library.
+
+Flask==3.1.2
+Werkzeug==3.1.3
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+itsdangerous==2.2.0
+click==8.3.0
+blinker==1.9.0
+
+# Development / testing
+pytest==8.4.2

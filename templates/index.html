@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <span class="chip chip-brand">Design &amp; Analysis of Algorithms project</span>
+  <h1>Search <span class="gradient-text">Smarter</span>. Analyze Faster.</h1>
+  <p class="hero-sub">
+    NexaSearch is a working search engine where every stage of the pipeline is an
+    algorithm you can inspect: a <strong>Trie</strong> for vocabulary and autocomplete,
+    a <strong>hash table</strong> for postings, <strong>KMP</strong> and
+    <strong>Rabin-Karp</strong> for exact phrases, <strong>TF-IDF</strong> for content
+    relevance, <strong>PageRank</strong> for authority, and <strong>merge sort</strong>
+    to order the results.
+  </p>
+
+  <form class="hero-search" action="{{ url_for('search.search') }}" method="get" role="search" autocomplete="off">
+    <div class="search-field" data-autocomplete>
+      <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M10 3a7 7 0 1 1-4.5 12.4l-3 3a1 1 0 0 1-1.4-1.4l3-3A7 7 0 0 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="currentColor"/></svg>
+      <input type="search" name="q" placeholder='machine learning algorithms   &middot;   "binary search"   &middot;   graph dijkstra'
+             aria-label="Search query" maxlength="200" required>
+      <button type="submit" class="btn btn-primary">Search</button>
+      <ul class="suggestions" role="listbox" hidden></ul>
+    </div>
+  </form>
+
+  <div class="hero-chips">
+    <button type="button" class="hero-chip" data-query="machine learning algorithms">machine learning algorithms</button>
+    <button type="button" class="hero-chip" data-query="&quot;binary search&quot;">&quot;binary search&quot;</button>
+    <button type="button" class="hero-chip" data-query="graph dijkstra shortest path">graph dijkstra shortest path</button>
+    <button type="button" class="hero-chip" data-query="cloud security">cloud security</button>
+    <button type="button" class="hero-chip" data-query="python dictionary">python dictionary</button>
+    <button type="button" class="hero-chip" data-query="trie hash table">trie hash table</button>
+  </div>
+</section>
+
+<section class="section">
+  <div class="stat-grid">
+    <div class="stat">
+      <span class="stat-value" data-count="{{ stats.documents }}">0</span>
+      <span class="stat-label">Documents indexed</span>
+      <span class="stat-hint">{{ stats.average_document_length }} tokens avg</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" data-count="{{ stats.unique_terms }}">0</span>
+      <span class="stat-label">Unique terms (Trie)</span>
+      <span class="stat-hint">{{ stats.trie.nodes }} trie nodes</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" data-count="{{ stats.postings }}">0</span>
+      <span class="stat-label">Inverted index postings</span>
+      <span class="stat-hint">load factor {{ stats.hash_table.load_factor }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" data-count="{{ stats.hash_table.collisions }}">0</span>
+      <span class="stat-label">Hash collisions handled</span>
+      <span class="stat-hint">{{ stats.hash_table.rehashes }} rehash(es)</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" data-count="{{ stats.build_time_ms }}" data-decimals="1">0</span>
+      <span class="stat-label">Index build time (ms)</span>
+      <span class="stat-hint">{{ stats.unique_terms }} terms hashed</span>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-head">
+        <h3>Try the Algorithm Lab</h3>
+        <a class="btn btn-sm" href="{{ url_for('algorithms.visualizer') }}">Open lab</a>
+      </div>
+      <p class="muted small">
+        Step through KMP, Rabin-Karp, binary search, BFS, DFS, Dijkstra, merge sort,
+        quick sort, the trie and the hash table - each one returns its real comparison
+        count and measured execution time.
+      </p>
+      <div class="chip-row">
+        <span class="chip">LPS array</span>
+        <span class="chip">Heap states</span>
+        <span class="chip">Bucket collisions</span>
+        <span class="chip">Partition steps</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h3>Analyse the ranking</h3>
+        <a class="btn btn-sm" href="{{ url_for('algorithms.algorithms_dashboard') }}">Open dashboard</a>
+      </div>
+      <p class="muted small">
+        The final score is a weighted sum of five normalised signals. The dashboard shows
+        every weight, the measured cost of each algorithm family, and the PageRank
+        distribution over the document graph.
+      </p>
+      <div class="chip-row">
+        <span class="chip chip-brand">0.30 title</span>
+        <span class="chip chip-brand">0.25 keyword</span>
+        <span class="chip chip-brand">0.25 TF-IDF</span>
+        <span class="chip chip-brand">0.10 phrase</span>
+        <span class="chip chip-brand">0.10 PageRank</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-head"><h3>Browse by category</h3>
+        <a class="btn btn-sm btn-ghost" href="{{ url_for('search.browse') }}">All documents</a>
+      </div>
+      <div class="chip-row">
+        {% for row in categories %}
+          <a class="chip" href="{{ url_for('search.browse', category=row.category) }}">{{ row.category }} <strong style="color:var(--text)">{{ row.count }}</strong></a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Vocabulary highlights</h3>
+        <span class="tiny muted">highest corpus frequency</span>
+      </div>
+      <div class="tag-list">
+        {% for term in top_terms %}<span class="tag">{{ term }}</span>{% endfor %}
+      </div>
+      <p class="muted small" style="margin-top:.8rem">
+        Type any prefix into the search box to see the Trie walk it in real time -
+        try <code>alg</code>, <code>graph</code> or <code>py</code>.
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll(".hero-chip").forEach(function (button) {
+    button.addEventListener("click", function () {
+      window.location.href = "/search?q=" + encodeURIComponent(button.dataset.query);
+    });
+  });
+</script>
+{% endblock %}

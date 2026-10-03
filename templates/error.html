@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ code or 500 }} &middot; {{ app_name }}</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="site-main">
+    <div class="container" style="max-width:640px;padding-top:3rem">
+      <div class="card center">
+        <div class="gradient-text" style="font-size:4rem;font-weight:700;letter-spacing:-.04em">
+          {{ code }}
+        </div>
+        <h1 style="font-size:1.6rem">{{ title }}</h1>
+        <p class="muted">{{ message }}</p>
+        <div class="chip-row" style="justify-content:center;margin:1.2rem 0">
+          <a class="btn btn-primary" href="{{ url_for('search.home') }}">Back to search</a>
+          <a class="btn" href="{{ url_for('algorithms.algorithms_dashboard') }}">Algorithm dashboard</a>
+        </div>
+        <p class="tiny muted">
+          NexaSearch handles bad input gracefully: empty queries, unknown keywords, special
+          characters and oversized payloads all return a readable page instead of a crash.
+        </p>
+      </div>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+TITLE: Java Collections: Interfaces, Complexity and Trade-offs
+CATEGORY: Java
+AUTHOR: H. Yamada
+KEYWORDS: java collections, arraylist, linkedlist, hashmap, treeset, complexity, iterator
+SUMMARY: The collections framework separates interface from implementation, so code can depend on a list without depending on the concrete list.
+----------------------------------------------------------------------
+
+The collections framework separates interface from implementation, so code can depend on a list without depending on the concrete list.
+
+The random access list implementation is backed by an array. Getting an element is O(1); inserting in the middle is O(n) because everything after it shifts. Its cost per element is lower than the linked implementation, which is why the linked list is almost never faster in practice despite O(1) insertion after a node is located.
+
+Hash-based maps offer O(1) average get, put and remove, with the same caveat as any hash table: a poor hash function or an excessive load factor degrades the average toward O(n), and treeifying a collided bucket restores O(log n) at the cost of extra time and space. The map must also be treated as unordered; iteration order is a detail of the current bucket layout.
+
+Sorted collections give O(log n) operations and O(n) ordered traversal, implemented with a balanced tree whose comparisons are O(log n) when the comparator is expensive, so the comparator should be cheap and consistent.
+
+Iterators are the safe traversal mechanism: they provide fail-fast behaviour when the collection is modified during iteration, which surfaces a bug rather than silently skipping elements.
+
+These are exactly the trade-offs implemented by hand in the project's own trie and hash table, described in [[searching-algorithms]].

@@ -1,0 +1,18 @@
+TITLE: Graph Algorithms: BFS, DFS, Dijkstra and MST
+CATEGORY: Algorithms
+AUTHOR: Prof. S. Iyer
+KEYWORDS: graph algorithm, breadth first search, depth first search, dijkstra, topological sort, minimum spanning tree
+SUMMARY: A graph models relationships between objects: vertices and edges. BFS and DFS are the two fundamental traversals and everything else is built on them.
+----------------------------------------------------------------------
+
+A graph models relationships between objects: vertices and edges. BFS and DFS are the two fundamental traversals and everything else is built on them.
+
+BFS uses a first-in first-out queue, so it visits vertices in non-decreasing distance from the source. Because the first path found to a vertex has the fewest edges, BFS gives shortest paths in unweighted graphs in O(V + E) time. It also produces the level structure, detects bipartite graphs, and finds all components.
+
+DFS uses a stack, so it goes as deep as possible before backtracking, in O(V + E) time and O(V) space. Recursion depth can reach V, which is a practical limit. DFS supports cycle detection through colouring, topological sorting of a directed acyclic graph, and strongly connected components.
+
+Dijkstra's algorithm generalises BFS to weighted graphs. It repeatedly settles the unvisited vertex with the smallest tentative distance, which is why it needs a priority queue. With a binary heap it costs O((V + E) log V). The greedy step is valid only for non-negative weights; with negative weights use Bellman-Ford, O(V * E), which also detects negative cycles.
+
+The minimum spanning tree connects every vertex at minimum total weight. Kruskal's algorithm sorts edges and adds them when they join different components, using union-find, and costs O(E log E). Prim's algorithm grows one tree from a source vertex and costs O(E log V) with a heap.
+
+The document graph in this project uses BFS and DFS for related-document traversals and Dijkstra on similarity-weighted edges to show shortest paths.

@@ -1,0 +1,16 @@
+TITLE: Operating System Concepts: Virtualisation and Abstraction
+CATEGORY: Operating Systems
+AUTHOR: L. Moreau
+KEYWORDS: operating system, kernel, system call, virtual memory, abstraction, syscall
+SUMMARY: An operating system is the layer that turns hardware into an environment programs can use. It does this by hiding hardware detail behind abstractions and by arbitrating access to shared resources.
+----------------------------------------------------------------------
+
+An operating system is the layer that turns hardware into an environment programs can use. It does this by hiding hardware detail behind abstractions and by arbitrating access to shared resources.
+
+A process is an execution context with its own address space, while a thread is a schedulable stream of instructions inside a process. Threads of one process share memory, so they must synchronise explicitly; processes are isolated, so they communicate slowly through the operating system.
+
+The kernel runs in privileged mode and exposes system calls as the only controlled entry point. User code cannot execute a privileged instruction or touch another process memory, which is the hardware-assisted basis of protection between processes and between users.
+
+Virtualisation lets one physical machine host many isolated environments, each with its own kernel view. Container runtimes use operating-system primitives, namespaces and control groups, instead of a hypervisor, so they start much faster but share the host kernel, as described in [[containers-in-cloud]].
+
+An operating system is fundamentally a resource scheduler and a protection mechanism. Scheduling policies are compared in [[process-scheduling]], memory management in [[memory-management]] and naming in [[file-systems]].

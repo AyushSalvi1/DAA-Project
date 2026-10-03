@@ -1,0 +1,16 @@
+TITLE: Cybersecurity Fundamentals and the CIA Triad
+CATEGORY: Cybersecurity
+AUTHOR: K. Osei
+KEYWORDS: cybersecurity, cia triad, authentication, least privilege, risk assessment
+SUMMARY: Security engineering is the practice of making a system accept the right requests and reject the rest, while keeping that true as the system changes.
+----------------------------------------------------------------------
+
+Security engineering is the practice of making a system accept the right requests and reject the rest, while keeping that true as the system changes.
+
+The CIA triad is the traditional summary: confidentiality, integrity and availability. Confidentiality limits disclosure to authorised parties. Integrity means a message cannot be altered undetected. Availability means authorised users can reach the system when needed. A fourth property is increasingly treated as equal in status: authenticity, proving that a party really is who it claims to be.
+
+The core principle is least privilege: every component and account receives only the permissions it needs for the task it performs. Combined with defence in depth, where several independent controls must fail before an attack succeeds, and fail safely, where a control that rejects denies access rather than allowing it, this turns a single mistake into an incident rather than a breach.
+
+Authentication proves identity using something the user knows, something they have, or something they are. Each factor can be phished, stolen or coerced, which is why multi-factor authentication is recommended. Authorisation then decides what an authenticated identity may do.
+
+Risk assessment ranks assets by impact and likelihood, and the chosen control reduces the risk that matters. Absolute security does not exist; the goal is an acceptable residual risk, which must be accepted deliberately by an owner.

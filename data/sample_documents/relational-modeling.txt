@@ -1,0 +1,16 @@
+TITLE: Normalisation, Keys and Referential Integrity
+CATEGORY: Databases
+AUTHOR: V. Aleksyev
+KEYWORDS: normalisation, first normal form, primary key, foreign key, referential integrity, joins
+SUMMARY: Normalisation organises data to remove redundancy and therefore to remove anomalies. An insertion anomaly loses data when a fact about a subject is stored only in one of its rows. An update anomaly requires changing many rows to change one fact. A deletion anomaly erases a fact by deleting an unrela
+----------------------------------------------------------------------
+
+Normalisation organises data to remove redundancy and therefore to remove anomalies. An insertion anomaly loses data when a fact about a subject is stored only in one of its rows. An update anomaly requires changing many rows to change one fact. A deletion anomaly erases a fact by deleting an unrelated row.
+
+First normal form requires atomic attribute values. Second normal form removes partial dependency on a composite key. Third normal form removes transitive dependency of a non-key attribute on the key. Boyce-Codd normal form and fourth normal form handle the remaining cases involving overlapping candidate keys and independent multivalued dependencies.
+
+Each normalisation step is a join, so applying one costs query performance at write time. Deliberate denormalisation is therefore a normal engineering decision for read-heavy systems, provided the redundancy is protected by triggers or application logic.
+
+Keys give identity. A primary key is unique and non-null. A surrogate key is an artificial identifier that is stable, while a natural key is derived from the data itself and is meaningful but can change. Foreign keys express relationships, and referential integrity guarantees that a referenced row exists, with cascading actions deciding what happens on delete or update.
+
+Joins combine tables, and their order and algorithm matter enormously, which leads to [[indexing-databases]].

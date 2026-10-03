@@ -1,0 +1,16 @@
+TITLE: Common Network Threats and Practical Defences
+CATEGORY: Cybersecurity
+AUTHOR: K. Osei
+KEYWORDS: network security, phishing, man in the middle, ddos, firewall, intrusion detection
+SUMMARY: Threats are grouped by what the attacker wants and how they reach the target.
+----------------------------------------------------------------------
+
+Threats are grouped by what the attacker wants and how they reach the target.
+
+Passive attacks observe without altering: eavesdropping on unencrypted traffic, sniffing on a shared medium, and traffic analysis that infers activity from timing and volume. Confidentiality is the target, and encryption with authenticated modes is the defence.
+
+Active attacks alter data or deny service. A man-in-the-middle relays traffic between two parties who believe they talk to each other; mutual authentication with certificates and pinning defeats it. Replay attacks reuse a captured message, defeated by nonces and sequence numbers. Denial of service floods a target so that legitimate traffic is starved, and is mitigated by rate limiting, anycast distribution and upstream scrubbing rather than by bandwidth alone.
+
+Social engineering targets people rather than machines. Phishing, pretexting and tailgating bypass technical controls entirely. Technical measures help by making phishing harder to automate: mail authentication records, hardware-backed multi-factor authentication and least privilege.
+
+Detection uses a firewall for permitted flows, an intrusion detection system for signatures and anomalies, and centralised logging for investigation. Defence is layered because any single control can fail; the network layer is described in [[tcp-ip-protocols]] and the host layer in [[operating-systems-concepts]].

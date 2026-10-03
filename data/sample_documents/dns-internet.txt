@@ -1,0 +1,18 @@
+TITLE: DNS and How the Internet Finds Names
+CATEGORY: Computer Networks
+AUTHOR: T. Banerjee
+KEYWORDS: dns, domain name, root servers, caching, ttl, dnssec
+SUMMARY: The domain name system maps human-readable names to addresses. It is a distributed, hierarchical database, and it is the most used service on the internet.
+----------------------------------------------------------------------
+
+The domain name system maps human-readable names to addresses. It is a distributed, hierarchical database, and it is the most used service on the internet.
+
+Names are structured right to left. The root is the empty label, then top-level domains, then second-level names. Resolvers walk down this tree: they ask a root server for the address of a name server for the top-level domain, then ask that server, and so on. Any of these responses may be answered from cache instead.
+
+Every record has a time to live, which bounds how long a cache may serve it. Short TTLs make changes propagate quickly but increase query volume. Propagation is in fact never immediate, which is why a cutover must be planned with an overlap period.
+
+Record types include address records, name-server records, mail-exchange records and canonical-name aliases. IPv6 adds a parallel record type for the newer address format.
+
+Security relies on two mechanisms. Transport layer security protects queries in flight. DNSSEC signs records end to end so a resolver can detect forgery, but it must be deployed at every level of the hierarchy to be useful, and it protects integrity rather than privacy.
+
+Caching is what makes the system scalable: without it every lookup would traverse the whole hierarchy. This is a direct application of memoisation, the same technique described in [[dynamic-programming]].

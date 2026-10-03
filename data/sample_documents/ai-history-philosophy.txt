@@ -1,0 +1,16 @@
+TITLE: A Short History and Philosophy of AI
+CATEGORY: Artificial Intelligence
+AUTHOR: Dr. A. Raghavan
+KEYWORDS: ai history, turing test, symbolic ai, expert systems, ai winters
+SUMMARY: The idea of mechanical reasoning is old, but the field named artificial intelligence began in 1956, when researchers proposed that every aspect of learning or any other feature of intelligence could in principle be described precisely enough for a machine to simulate it.
+----------------------------------------------------------------------
+
+The idea of mechanical reasoning is old, but the field named artificial intelligence began in 1956, when researchers proposed that every aspect of learning or any other feature of intelligence could in principle be described precisely enough for a machine to simulate it.
+
+The symbolic era dominated the 1960s and 1970s. Early programs solved small problems and then failed on realistic ones, an effect later nicknamed the AI winter. Expert systems in the 1980s worked in narrow domains such as medical diagnosis and computer configuration, but they were brittle: they could not learn, and every new case needed a new rule.
+
+In 1950 Alan Turing proposed the imitation game, now called the Turing test, as an operational answer to the question can machines think. The test is behavioural, not theoretical, which is why the debate about it is still open.
+
+Connectionism revived in the 1980s with backpropagation for multilayer perceptrons. Three things changed later: more data, more compute, and better algorithms such as convolutional and attention architectures. Together they moved the field from hand-written rules to statistical learning, which is exactly the shift described in [[ml-deep-learning]] and formalised in [[ml-supervised-learning]].
+
+The philosophical split between strong and weak AI still shapes expectations: weak AI claims a system can do one task well, strong AI claims general human-like understanding.

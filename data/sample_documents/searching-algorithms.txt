@@ -1,0 +1,16 @@
+TITLE: Searching Algorithms: Linear, Binary, Hash and Trie
+CATEGORY: Algorithms
+AUTHOR: Prof. S. Iyer
+KEYWORDS: searching, linear search, binary search, hash search, trie search, complexity
+SUMMARY: Searching is the problem of locating a target in a collection, and its cost depends on two things: the algorithm and the data structure.
+----------------------------------------------------------------------
+
+Searching is the problem of locating a target in a collection, and its cost depends on two things: the algorithm and the data structure.
+
+Linear search compares the target with each element in turn. It works on unsorted data and costs O(n) in the average and worst cases, but only O(1) in the best case where the target is first. It is the only choice when data arrives unsorted and occasional lookups are expected.
+
+Binary search requires sorted data and repeatedly halves the range, so it costs O(log n). It is the algorithm behind database B-trees and is why sorted indexes are worth their maintenance cost. Its weakness is the sorting precondition, and insertion into a sorted array is O(n).
+
+Hash search computes a bucket address from the key, giving O(1) average lookup. It trades ordering and worst case: every collision lengthens a chain, so load factor must be controlled by rehashing.
+
+A trie stores prefixes as paths, so lookup costs O(L) where L is the word length, completely independent of how many words are stored, and prefix search falls out for free. The price is memory: one node per distinct prefix. A search engine needs all four, which is why this project implements all four: the corpus is scanned linearly as a baseline, sorted ids are probed by binary search, postings are fetched through the hash table, and the vocabulary plus autocomplete come from the trie.

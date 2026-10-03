@@ -1,0 +1,18 @@
+TITLE: Web Development Fundamentals: The Request-Response Cycle
+CATEGORY: Web Development
+AUTHOR: A. D'Souza
+KEYWORDS: web development, http, browser, server, cookies, session, caching
+SUMMARY: The web is a system of clients and servers exchanging requests and responses over HTTP.
+----------------------------------------------------------------------
+
+The web is a system of clients and servers exchanging requests and responses over HTTP.
+
+HTTP is stateless: each request stands alone, which keeps components independent but forces state onto the client. Cookies and server sessions are the two solutions. A cookie is a small token sent with every request to a domain; session state stays on the server and only the identifier travels. Token-based APIs use a signed and time-limited token instead, which scales better across regions.
+
+A response carries status codes, headers and a body. Caching is the biggest performance lever: cache-control and expiry headers tell shared caches and browsers what they may reuse, and an entity tag lets a client revalidate cheaply instead of re-downloading.
+
+Statelessness and caching are in tension, since caching a personalised response would leak it. The resolution is to cache the shared part and vary the private part.
+
+The same origin policy restricts scripts on one origin from reading another. CORS lets a server opt in explicitly, which is why a well-configured API declares which origins may read its responses. Content security policy restricts what a page may load and execute, which limits the damage from an injected script.
+
+Web performance is measured with metrics such as largest contentful paint and interaction to next paint, and improved by minimising blocking resources, deferring scripts and caching aggressively.

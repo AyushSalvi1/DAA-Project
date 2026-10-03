@@ -1,0 +1,16 @@
+TITLE: File Systems: Allocation, Indexing and Consistency
+CATEGORY: Operating Systems
+AUTHOR: L. Moreau
+KEYWORDS: file system, inode, allocation, journaling, directory, consistency, fsck
+SUMMARY: A file system maps names to byte ranges on a persistent device and makes the mapping survive crashes.
+----------------------------------------------------------------------
+
+A file system maps names to byte ranges on a persistent device and makes the mapping survive crashes.
+
+Allocation decides where file data lives. Contiguous allocation is fast to read and simple, but external fragmentation makes it impractical for general use. Linked allocation removes fragmentation but makes random access proportional to the number of links. Extent allocation, which stores runs of contiguous blocks, is the modern compromise and is what ext4 and modern databases use.
+
+Metadata is stored in structures such as inodes and directory entries. An inode holds attributes and block pointers, and directory entries map names to inodes. Indexed allocation stores a tree of block pointers so a lookup is proportional to the logarithm of the file size rather than its length.
+
+A write-ahead journal records intended operations before they happen. After a crash the system replays or discards the journal, which converts an arbitrary corruption into a bounded rollback. Consistency is what makes the difference between a database feature and a file system detail.
+
+Recovery still matters when the journal itself is lost, which is why file systems ship consistency checkers that walk the structures looking for damage.

@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>Algorithm Analysis Dashboard</h1>
+  <div class="rule"></div>
+</div>
+<p class="muted">
+  Every algorithm below is implemented by hand in <code>/algorithms</code>. The complexity
+  figures are the theoretical bounds; the measured timings come from running the same code on
+  this machine's live corpus.
+</p>
+
+<div class="stat-grid">
+  <div class="stat"><span class="stat-value">{{ algorithms | length }}</span><span class="stat-label">Algorithms implemented</span>
+    <span class="stat-hint">{{ categories | length }} families</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ index_stats.documents }}">0</span><span class="stat-label">Documents in index</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ index_stats.unique_terms }}">0</span><span class="stat-label">Vocabulary size</span>
+    <span class="stat-hint">{{ index_stats.trie.nodes }} trie nodes</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ graph_stats.nodes }}">0</span><span class="stat-label">Graph nodes</span>
+    <span class="stat-hint">{{ graph_stats.edges }} edges</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ pagerank.iterations }}">0</span><span class="stat-label">PageRank iterations</span>
+    <span class="stat-hint">converged: {{ 'yes' if pagerank.converged else 'no' }}</span></div>
+</div>
+
+<div class="pill-group" style="margin-bottom:1rem">
+  {% for category in categories %}
+    <a class="pill" href="#cat-{{ category | replace(' ', '-') }}">{{ category }}</a>
+  {% endfor %}
+  <a class="pill" href="#benchmarks">Live benchmarks</a>
+  <a class="pill" href="#compare">Comparisons</a>
+</div>
+
+{% for category in categories %}
+  {% set rows = grouped.get(category, []) %}
+  {% if rows %}
+    <section class="section" id="cat-{{ category | replace(' ', '-') }}">
+      <div class="section-title"><h2>{{ category }}</h2><div class="rule"></div></div>
+      <div class="grid grid-2">
+        {% for algo in rows %}
+          <div class="card algorithm-card">
+            <div class="card-head">
+              <h3>{{ algo.name }}</h3>
+              <span class="chip chip-brand algo-id">{{ algo.id }}</span>
+            </div>
+            <p class="muted small" style="margin:0">{{ algo.purpose }}</p>
+            <dl>
+              <dt>Input</dt><dd>{{ algo.input }}</dd>
+              <dt>Output</dt><dd>{{ algo.output }}</dd>
+              <dt>Time</dt><dd>{{ algo.time }}</dd>
+              <dt>Space</dt><dd>{{ algo.space }}</dd>
+              <dt>Best</dt><dd>{{ algo.best }}</dd>
+              <dt>Average</dt><dd>{{ algo.average }}</dd>
+              <dt>Worst</dt><dd>{{ algo.worst }}</dd>
+            </dl>
+            <details class="accordion">
+              <summary>Why it matters here</summary>
+              <div class="accordion-body">
+                <p>{{ algo.why }}</p>
+                <p class="mb-0"><strong>Used in this project:</strong> {{ algo.used_for }}</p>
+              </div>
+            </details>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endfor %}
+
+<section class="section" id="benchmarks">
+  <div class="section-title"><h2>Live performance measurement</h2><div class="rule"></div></div>
+  <p class="muted small">
+    The benchmark runs the production implementations in <code>core/benchmark.py</code> and
+    stores the measurements in the <code>benchmark_results</code> table. Timings depend on your
+    machine; the <em>shape</em> of each curve is the point.
+  </p>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Run benchmarks</h3>
+      <div class="pill-group">
+        <button type="button" class="pill" data-bench="searching">Searching</button>
+        <button type="button" class="pill" data-bench="string">String matching</button>
+        <button type="button" class="pill" data-bench="sorting">Sorting</button>
+        <button type="button" class="pill" data-bench="graph">Graph</button>
+        <button type="button" class="pill active" data-bench="all">Everything</button>
+      </div>
+    </div>
+    <div id="bench-status" class="muted small">No benchmark run in this session yet.</div>
+  </div>
+
+  <div id="bench-results" style="margin-top:1rem"></div>
+</section>
+
+<section class="section" id="compare">
+  <div class="section-title"><h2>Head-to-head comparisons</h2><div class="rule"></div></div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-head"><h3>Searching strategies</h3></div>
+      <p class="muted small">Linear vs Binary vs Hash vs Trie lookup for the same target key.</p>
+      <div class="filters">
+        <input type="text" id="cmp-term" value="algorithm" aria-label="Search term" style="flex:1">
+        <button type="button" class="btn btn-sm btn-primary" id="cmp-search-run">Compare</button>
+      </div>
+      <div id="cmp-search" style="margin-top:.9rem"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>KMP vs Rabin-Karp</h3></div>
+      <p class="muted small">Both matchers run on the identical text and pattern.</p>
+      <div class="field"><label for="cmp-text">Text</label>
+        <input type="text" id="cmp-text" value="the quick brown fox jumps over the lazy dog the fox is quick"></div>
+      <div class="field"><label for="cmp-pattern">Pattern</label>
+        <input type="text" id="cmp-pattern" value="quick"></div>
+      <button type="button" class="btn btn-sm btn-primary" id="cmp-string-run">Compare</button>
+      <div id="cmp-string" style="margin-top:.9rem"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head"><h3>Sorting comparison</h3><span class="tiny muted">Merge vs Quick vs Heap</span></div>
+    <div class="filters">
+      <label class="nowrap" for="sort-size" style="margin:0">n =</label>
+      <input type="number" id="sort-size" value="5000" min="10" max="20000" step="500" style="width:120px">
+      <select id="sort-pattern" style="width:170px">
+        <option value="random">random order</option>
+        <option value="sorted">already sorted</option>
+        <option value="reversed">reverse sorted</option>
+      </select>
+      <button type="button" class="btn btn-sm btn-primary" id="sort-run">Benchmark sorts</button>
+    </div>
+    <div id="sort-result" style="margin-top:.9rem"></div>
+  </div>
+
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-head"><h3>TF-IDF report</h3><span class="tiny muted">hand-written, no scikit-learn</span></div>
+    <div class="filters">
+      <input type="text" id="tfidf-terms" value="algorithm, machine, graph, security, python" style="flex:1"
+             aria-label="Comma separated terms">
+      <button type="button" class="btn btn-sm btn-primary" id="tfidf-run">Compute</button>
+    </div>
+    <div class="formula-box" style="margin-top:.9rem">
+      TF(t,d) = count(t in d) / total tokens in d &nbsp;&middot;&nbsp;
+      IDF(t) = ln((1 + N) / (1 + df(t))) + 1 &nbsp;&middot;&nbsp;
+      TFIDF(t,d) = TF &times; IDF &nbsp;&middot;&nbsp;
+      score(d, q) = cosine( TFIDF(d), TFIDF(q) )
+    </div>
+    <div id="tfidf-result" style="margin-top:.9rem"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-title"><h2>Corpus statistics</h2><div class="rule"></div></div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-head"><h3>TF-IDF model</h3></div>
+      <dl class="kv">
+        <dt>Documents</dt><dd>{{ tfidf_stats.documents }}</dd>
+        <dt>Vocabulary</dt><dd>{{ tfidf_stats.vocabulary }}</dd>
+        <dt>Total tokens</dt><dd>{{ tfidf_stats.total_tokens | compact }}</dd>
+        <dt>Average length</dt><dd>{{ tfidf_stats.avg_document_length }}</dd>
+        <dt>Longest document</dt><dd>{{ tfidf_stats.max_document_length }} tokens</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Inverted index</h3></div>
+      <dl class="kv">
+        <dt>Postings</dt><dd>{{ index_stats.postings | compact }}</dd>
+        <dt>Trie nodes</dt><dd>{{ index_stats.trie.nodes | compact }}</dd>
+        <dt>Trie terminals</dt><dd>{{ index_stats.trie.terminals | compact }}</dd>
+        <dt>Hash capacity</dt><dd>{{ index_stats.hash_table.capacity }}</dd>
+        <dt>Hash load factor</dt><dd>{{ index_stats.hash_table.load_factor }}</dd>
+        <dt>Hash collisions</dt><dd>{{ index_stats.hash_table.collisions }}</dd>
+        <dt>Rehashes</dt><dd>{{ index_stats.hash_table.rehashes }}</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const esc = window.NexaEscape;
+
+  /* -------------------------------------------------- benchmarks */
+  const status = document.getElementById("bench-status");
+  const output = document.getElementById("bench-results");
+
+  document.querySelectorAll("[data-bench]").forEach(button => {
+    button.addEventListener("click", async function () {
+      document.querySelectorAll("[data-bench]").forEach(b => b.classList.toggle("active", b === button));
+      status.innerHTML = '<span class="spinner"></span> Running benchmarks on the live corpus…';
+      const result = await window.NexaPost("/algorithms/benchmark", { kind: button.dataset.bench });
+      if (!result.ok) {
+        status.textContent = "Benchmark failed: " + (result.data.error || result.status);
+        return;
+      }
+      const data = result.data;
+      status.textContent = "Completed at " + data.generated_at + " - " + data.saved_rows + " row(s) stored in benchmark_results.";
+      let html = "";
+
+      if (data.searching) {
+        const labels = data.searching.rows.filter(r => r.input_size === data.searching.sizes[0]).map(r => r.algorithm);
+        const series = labels.map(algo => ({
+          name: algo,
+          data: data.searching.rows.filter(r => r.algorithm === algo)
+            .map(r => ({ x: r.input_size, y: r.time_ms }))
+        }));
+        html += '<div class="card"><div class="card-head"><h3>Searching vs dataset size</h3>' +
+          '<span class="tiny muted">execution time (ms)</span></div>' +
+          '<canvas class="chart" data-height="260" data-chart=\'' +
+          JSON.stringify({ labels: data.searching.sizes.map(String), series: series, log: true }) + "'></canvas></div>";
+        html += tableFromSearch(data.searching.rows);
+      }
+
+      if (data.string_matching) {
+        html += '<div class="card"><div class="card-head"><h3>KMP vs Rabin-Karp vs naive</h3>' +
+          '<span class="tiny muted">text length (ms)</span></div>' +
+          '<canvas class="chart" data-height="260" data-chart=\'' +
+          JSON.stringify({
+            labels: data.string_matching.rows.map(r => String(r.text_length)),
+            series: [
+              { name: "KMP", data: data.string_matching.rows.map(r => ({ x: r.text_length, y: r.kmp_ms })) },
+              { name: "Rabin-Karp", data: data.string_matching.rows.map(r => ({ x: r.text_length, y: r.rk_ms })) },
+              { name: "Naive", data: data.string_matching.rows.map(r => ({ x: r.text_length, y: r.naive_ms })) }
+            ],
+            log: true
+          }) + "'></canvas>" + tableFromString(data.string_matching.rows) + "</div>";
+      }
+
+      if (data.sorting) {
+        html += '<div class="card"><div class="card-head"><h3>Sorting vs input size</h3>' +
+          '<span class="tiny muted">execution time (ms)</span></div>' +
+          '<canvas class="chart" data-height="260" data-chart=\'' +
+          JSON.stringify({
+            labels: data.sorting.rows.map(r => String(r.input_size)),
+            series: [
+              { name: "Merge Sort", data: data.sorting.rows.map(r => ({ x: r.input_size, y: r.merge_ms })) },
+              { name: "Quick Sort", data: data.sorting.rows.map(r => ({ x: r.input_size, y: r.quick_ms })) },
+              { name: "Heap Sort", data: data.sorting.rows.map(r => ({ x: r.input_size, y: r.heap_ms })) }
+            ],
+            log: true
+          }) + "'></canvas>" + tableFromSort(data.sorting.rows) + "</div>";
+      }
+
+      if (data.graph) {
+        const row = data.graph.rows[0];
+        html += '<div class="card"><div class="card-head"><h3>Graph traversal</h3>' +
+          '<span class="tiny muted">' + data.graph.title + "</span></div>" +
+          '<canvas class="chart" data-height="220" data-chart=\'' +
+          JSON.stringify({
+            labels: ["BFS", "DFS", "Dijkstra"],
+            bar: true,
+            series: [{ name: "time (ms)", data: [{ x: 0, y: row.bfs_ms }, { x: 1, y: row.dfs_ms }, { x: 2, y: row.dijkstra_ms }] }]
+          }) + "'></canvas>" +
+          '<div class="table-wrap"><table><thead><tr><th>Algorithm</th><th class="num">Time (ms)</th>' +
+          "<th class=\"num\">Nodes</th><th class=\"num\">Extra work</th></tr></thead><tbody>" +
+          "<tr><td>BFS</td><td class=\"num\">" + row.bfs_ms + "</td><td class=\"num\">" + row.bfs_visits + "</td><td class=\"num\">-</td></tr>" +
+          "<tr><td>DFS</td><td class=\"num\">" + row.dfs_ms + "</td><td class=\"num\">" + row.dfs_visits + "</td><td class=\"num\">-</td></tr>" +
+          "<tr><td>Dijkstra</td><td class=\"num\">" + row.dijkstra_ms + "</td><td class=\"num\">" + row.dijkstra_settled +
+          "</td><td class=\"num\">" + row.dijkstra_relaxations + " relax / " + row.dijkstra_heap_comparisons + " heap cmp</td></tr>" +
+          "</tbody></table></div></div>";
+      }
+
+      output.innerHTML = html;
+      output.querySelectorAll("canvas[data-chart]").forEach(canvas => {
+        window.NexaChart.render(canvas, JSON.parse(canvas.dataset.chart));
+      });
+    });
+  });
+
+  function tableFromSearch(rows) {
+    return '<div class="table-wrap" style="margin-top:1rem;max-height:320px;overflow:auto"><table><thead><tr>' +
+      "<th>Algorithm</th><th class=\"num\">Input size</th><th class=\"num\">Comparisons</th><th class=\"num\">Time (ms)</th><th>Case</th>" +
+      "</tr></thead><tbody>" +
+      rows.map(r => "<tr><td>" + esc(r.algorithm) + "</td><td class=\"num\">" + r.input_size +
+        "</td><td class=\"num\">" + r.comparisons + "</td><td class=\"num\">" + r.time_ms +
+        "</td><td class=\"muted small\">" + esc(r.case) + "</td></tr>").join("") +
+      "</tbody></table></div>";
+  }
+  function tableFromString(rows) {
+    return '<div class="table-wrap" style="margin-top:1rem;max-height:320px;overflow:auto"><table><thead><tr>' +
+      "<th class=\"num\">Text length</th><th class=\"num\">KMP ms</th><th class=\"num\">KMP cmp</th>" +
+      "<th class=\"num\">RK ms</th><th class=\"num\">RK cmp</th><th class=\"num\">Naive cmp</th><th class=\"num\">Speed-up</th>" +
+      "</tr></thead><tbody>" +
+      rows.map(r => "<tr><td class=\"num\">" + r.text_length + "</td><td class=\"num\">" + r.kmp_ms +
+        "</td><td class=\"num\">" + r.kmp_comparisons + "</td><td class=\"num\">" + r.rk_ms +
+        "</td><td class=\"num\">" + r.rk_comparisons + "</td><td class=\"num\">" + r.naive_comparisons +
+        "</td><td class=\"num\">" + r.speedup + "x</td></tr>").join("") +
+      "</tbody></table></div>";
+  }
+  function tableFromSort(rows) {
+    return '<div class="table-wrap" style="margin-top:1rem;max-height:320px;overflow:auto"><table><thead><tr>' +
+      "<th class=\"num\">n</th><th class=\"num\">Merge ms</th><th class=\"num\">Merge cmp</th>" +
+      "<th class=\"num\">Quick ms</th><th class=\"num\">Quick cmp</th><th class=\"num\">Heap ms</th>" +
+      "<th class=\"num\">Quick on sorted input</th>" +
+      "<th class=\"num\">Quick on reversed input</th>" +
+      "</tr></thead><tbody>" +
+      rows.map(r => "<tr><td class=\"num\">" + r.input_size + "</td><td class=\"num\">" + r.merge_ms +
+        "</td><td class=\"num\">" + r.merge_comparisons + "</td><td class=\"num\">" + r.quick_ms +
+        "</td><td class=\"num\">" + r.quick_comparisons + "</td><td class=\"num\">" + r.heap_ms +
+        "</td><td class=\"num\">" + r.quick_sorted_input_ms + " ms (depth " + r.quick_max_depth + ")</td>" +
+        "<td class=\"num\">" + r.quick_reversed_input_ms + " ms (depth " + r.quick_reversed_max_depth + ")</td></tr>").join("") +
+      "</tbody></table></div>";
+  }
+
+  /* ------------------------------------------------ comparisons */
+  document.getElementById("cmp-search-run").addEventListener("click", async function () {
+    const box = document.getElementById("cmp-search");
+    box.innerHTML = '<span class="spinner"></span>';
+    const result = await window.NexaPost("/algorithms/compare/search", { term: document.getElementById("cmp-term").value });
+    if (!result.ok) { box.textContent = result.data.error || "failed"; return; }
+    box.innerHTML = '<p class="tiny muted">Target key: <code>' + esc(result.data.target) + "</code></p>" +
+      '<div class="table-wrap"><table><thead><tr><th>Algorithm</th><th class="num">Comparisons</th>' +
+      "<th class=\"num\">Time (ms)</th><th>Note</th></tr></thead><tbody>" +
+      result.data.results.map(r => "<tr><td>" + esc(r.algorithm) + "</td><td class=\"num\">" + r.comparisons +
+        "</td><td class=\"num\">" + r.time_ms.toFixed(5) + "</td><td class=\"muted small\">" + esc(r.note) + "</td></tr>").join("") +
+      "</tbody></table></div>";
+  });
+
+  document.getElementById("cmp-string-run").addEventListener("click", async function () {
+    const box = document.getElementById("cmp-string");
+    box.innerHTML = '<span class="spinner"></span>';
+    const result = await window.NexaPost("/algorithms/compare/string", {
+      text: document.getElementById("cmp-text").value,
+      pattern: document.getElementById("cmp-pattern").value
+    });
+    if (!result.ok) { box.textContent = result.data.error || "failed"; return; }
+    box.innerHTML = '<div class="chip-row" style="margin-bottom:.6rem">' +
+      '<span class="chip">text ' + result.data.text_length + "</span>" +
+      '<span class="chip">pattern ' + result.data.pattern_length + "</span>" +
+      '<span class="chip ' + (result.data.agree ? "chip-ok" : "chip-err") + '">KMP and Rabin-Karp ' +
+      (result.data.agree ? "agree" : "disagree") + "</span></div>" +
+      '<div class="table-wrap"><table><thead><tr><th>Algorithm</th><th class="num">Matches</th>' +
+      "<th class=\"num\">Comparisons</th><th class=\"num\">Time (ms)</th><th>Complexity</th></tr></thead><tbody>" +
+      result.data.rows.map(r => "<tr><td>" + esc(r.algorithm) + "</td><td class=\"num\">" + r.matches +
+        "</td><td class=\"num\">" + r.comparisons + "</td><td class=\"num\">" + r.time_ms +
+        "</td><td class=\"muted small\">" + esc(r.complexity) + "</td></tr>").join("") +
+      "</tbody></table></div>";
+  });
+
+  document.getElementById("sort-run").addEventListener("click", async function () {
+    const box = document.getElementById("sort-result");
+    box.innerHTML = '<span class="spinner"></span>';
+    const result = await window.NexaPost("/algorithms/sort-benchmark", {
+      size: document.getElementById("sort-size").value,
+      pattern: document.getElementById("sort-pattern").value
+    });
+    if (!result.ok) { box.textContent = result.data.error || "failed"; return; }
+    const d = result.data;
+    box.innerHTML = '<div class="chip-row" style="margin-bottom:.8rem">' +
+      '<span class="chip chip-brand">n = ' + d.size + "</span><span class=\"chip\">" + esc(d.pattern) +
+      ' input</span><span class="chip ' + (d.all_correct ? "chip-ok" : "chip-err") + '">all three sorts ' +
+      (d.all_correct ? "agree" : "disagree") + "</span></div>" +
+      '<canvas class="chart" data-height="220" data-chart=\'' +
+      JSON.stringify({
+        labels: ["Merge", "Quick", "Heap"], bar: true,
+        series: [{ name: "ms", data: [{ x: 0, y: d.merge.ms }, { x: 1, y: d.quick.ms }, { x: 2, y: d.heap.ms }] }]
+      }) + "'></canvas>" +
+      '<div class="table-wrap" style="margin-top:.9rem"><table><thead><tr><th>Algorithm</th>' +
+      "<th class=\"num\">Time (ms)</th><th class=\"num\">Comparisons</th><th>Note</th></tr></thead><tbody>" +
+      "<tr><td>Merge Sort</td><td class=\"num\">" + d.merge.ms + "</td><td class=\"num\">" + d.merge.comparisons +
+      "</td><td class=\"muted small\">Theta(n log n), stable, Theta(n) space</td></tr>" +
+      "<tr><td>Quick Sort</td><td class=\"num\">" + d.quick.ms + "</td><td class=\"num\">" + d.quick.comparisons +
+      "</td><td class=\"muted small\">" + d.quick.partitions + " partitions, max depth " + d.quick.depth + "</td></tr>" +
+      "<tr><td>Heap Sort</td><td class=\"num\">" + d.heap.ms + "</td><td class=\"num\">" + d.heap.comparisons +
+      "</td><td class=\"muted small\">Theta(n log n) with O(1) space</td></tr>" +
+      "</tbody></table></div>";
+    window.NexaChart.render(box.querySelector("canvas"), JSON.parse(box.querySelector("canvas").dataset.chart));
+  });
+
+  document.getElementById("tfidf-run").addEventListener("click", async function () {
+    const box = document.getElementById("tfidf-result");
+    box.innerHTML = '<span class="spinner"></span>';
+    const terms = document.getElementById("tfidf-terms").value;
+    const result = await window.NexaPost("/algorithms/tfidf", { terms: terms, query: terms.replace(/,/g, " ") });
+    if (!result.ok) { box.textContent = result.data.error || "failed"; return; }
+    const d = result.data;
+    box.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Term</th><th class="num">df</th>' +
+      "<th class=\"num\">N</th><th class=\"num\">IDF</th><th class=\"num\">% of corpus</th><th>Top document</th>" +
+      "</tr></thead><tbody>" +
+      d.terms.map(t => "<tr><td class=\"mono\">" + esc(t.term) + "</td><td class=\"num\">" + t.document_frequency +
+        "</td><td class=\"num\">" + t.total_documents + "</td><td class=\"num\">" + t.idf +
+        "</td><td class=\"num\">" + t.rarity_percent + "%</td><td class=\"muted small\">" +
+        (t.occurrences.length ? "#" + t.occurrences[0].doc_id + " tfidf " + t.occurrences[0].tfidf : "-") +
+        "</td></tr>").join("") + "</tbody></table></div>" +
+      '<h4 style="margin-top:1rem">Cosine similarity against the query</h4>' +
+      '<div class="table-wrap"><table><thead><tr><th>#</th><th>Document</th><th class="num">Cosine</th>' +
+      "<th>Matched terms</th></tr></thead><tbody>" +
+      d.scores.map(s => "<tr><td class=\"num\">" + s.doc_id + "</td><td>" + esc(s.title) +
+        "</td><td class=\"num\">" + s.score + "</td><td class=\"muted small mono\">" +
+        Object.keys(s.matched).join(", ") + "</td></tr>").join("") +
+      "</tbody></table></div>";
+  });
+})();
+</script>
+{% endblock %}

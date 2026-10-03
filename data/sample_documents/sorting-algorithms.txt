@@ -1,0 +1,16 @@
+TITLE: Sorting Algorithms: Merge, Quick, Heap and the Space Trade-off
+CATEGORY: Algorithms
+AUTHOR: Prof. S. Iyer
+KEYWORDS: sorting, merge sort, quick sort, heap sort, stability, in place, lower bound
+SUMMARY: Sorting is used for ordered output, for binary search, for grouping and for deterministic presentation. There is a lower bound of Omega(n log n) comparisons in the comparison model, because a comparison has only two outcomes and a sorted output requires n! distinct orderings, so the decision tree ne
+----------------------------------------------------------------------
+
+Sorting is used for ordered output, for binary search, for grouping and for deterministic presentation. There is a lower bound of Omega(n log n) comparisons in the comparison model, because a comparison has only two outcomes and a sorted output requires n! distinct orderings, so the decision tree needs at least log2(n!) nodes.
+
+Merge sort splits the array, sorts the halves and merges them. The merge step is linear, and because the split is always even the recurrence T(n) = 2T(n/2) + n gives Theta(n log n) for every input, including already sorted data. It needs a Theta(n) buffer and is stable, so equal keys keep their original order, which matters when ties are broken by an earlier relevance signal. This is why the search results in this project are ordered with merge sort.
+
+Quick sort partitions around a pivot. It sorts in place with only O(log n) extra stack space and is usually the fastest in practice because of cache locality, but the worst case is Theta(n^2). Median-of-three and randomised pivots make that worst case vanishingly unlikely on real data.
+
+Heap sort builds a binary heap in O(n) using Floyd's method and then extracts the maximum n times at O(log n), giving Theta(n log n) time with O(1) extra space. It is the only comparison sort with both bounds optimal, but poor cache behaviour makes it slower than quick sort in practice.
+
+Non-comparison sorts such as counting and radix sort beat the lower bound by exploiting the structure of the keys, at the cost of extra memory.

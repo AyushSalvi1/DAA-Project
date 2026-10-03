@@ -1,0 +1,14 @@
+TITLE: Foundations of Artificial Intelligence
+CATEGORY: Artificial Intelligence
+AUTHOR: Dr. A. Raghavan
+KEYWORDS: artificial intelligence, ai definition, intelligent agents, rational agent, search problem
+SUMMARY: Artificial Intelligence is the branch of computer science concerned with building systems that perform tasks which normally require human intelligence. The classical textbook definition of AI is the study of how to make computers do things that, if done by a human, would be called intelligent.
+----------------------------------------------------------------------
+
+Artificial Intelligence is the branch of computer science concerned with building systems that perform tasks which normally require human intelligence. The classical textbook definition of AI is the study of how to make computers do things that, if done by a human, would be called intelligent.
+
+A useful organising idea is the rational agent: an agent that perceives its environment through sensors and acts through actuators so as to maximise a measure of performance. Every AI technique is one particular strategy for implementing that agent. A search-based agent explores a state space, a knowledge-based agent stores facts and rules, and a learning agent improves from data.
+
+AI is usually split into symbolic approaches and connectionist approaches. Symbolic systems reason over explicit representations, which makes their decisions explainable but their knowledge hard to acquire. Connectionist systems, that is neural networks, learn distributed representations from examples, which makes them powerful but opaque.
+
+The problems studied in AI recur throughout computer science. Search and optimisation appear in [[searching-algorithms]], planning and reasoning reuse graph traversal techniques from [[graph-algorithms]], and the evaluation of learned systems depends on the statistical tools described in [[statistics-for-data-science]]. Machine learning supplies the learning half of the intelligent agent; see [[ml-supervised-learning]].

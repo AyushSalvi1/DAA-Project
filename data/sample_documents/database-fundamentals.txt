@@ -1,0 +1,14 @@
+TITLE: Relational Database Fundamentals and ACID Transactions
+CATEGORY: Databases
+AUTHOR: V. Aleksyev
+KEYWORDS: relational database, sql, acid, transaction, isolation, durability
+SUMMARY: A database management system stores structured data and answers queries about it. The relational model represents data as tables of tuples over a fixed schema, and queries are expressed in a declarative language, SQL, where the system chooses the execution plan.
+----------------------------------------------------------------------
+
+A database management system stores structured data and answers queries about it. The relational model represents data as tables of tuples over a fixed schema, and queries are expressed in a declarative language, SQL, where the system chooses the execution plan.
+
+A transaction groups operations into one all-or-nothing unit. ACID names the four guarantees. Atomicity means all statements commit or none do. Consistency means the constraints declared in the schema hold after every transaction. Isolation means concurrent transactions do not see each other's partial work. Durability means committed data survives a crash.
+
+Isolation levels are a deliberate trade-off. Read uncommitted permits dirty reads. Read committed forbids them but still allows non-repeatable reads. Repeatable read prevents those but may allow phantom rows from concurrent inserts. Serializable prevents all of them and costs the most, usually through lock holding to the end of the transaction.
+
+Recovery uses a write-ahead log and checkpoints. After a crash the log replays committed work and undoes uncommitted work, so durability and atomicity survive without rewriting whole tables.

@@ -1,0 +1,16 @@
+TITLE: Computer Networks: Layers, Protocols and the Packet Life
+CATEGORY: Computer Networks
+AUTHOR: T. Banerjee
+KEYWORDS: computer networks, osi model, tcp ip, packet, bandwidth, latency, throughput
+SUMMARY: A network lets machines exchange messages. The packet is the basic unit: a small header carrying addressing and control information, and a payload. Splitting data into packets lets many hosts share a link and lets routers forward each packet independently.
+----------------------------------------------------------------------
+
+A network lets machines exchange messages. The packet is the basic unit: a small header carrying addressing and control information, and a payload. Splitting data into packets lets many hosts share a link and lets routers forward each packet independently.
+
+The OSI model is a seven-layer reference: physical, data link, network, transport, session, presentation and application. Each layer uses the services of the layer below and offers a service to the layer above, so a change at one layer does not require rewriting the others. TCP/IP folds these into four or five practical layers.
+
+Addressing is hierarchical, which is why routers can scale: an address contains a network part that identifies where to send the packet and a host part that identifies the machine. Longest-prefix matching picks the most specific route.
+
+Performance has three distinct measures. Bandwidth is the maximum data rate of a link. Latency is the delay for one packet, itself a sum of propagation, transmission and queuing delay. Throughput is the rate of useful data actually delivered, which is always at most bandwidth and usually far less because of overhead, contention and retransmissions.
+
+Congestion control is the reason the internet works: hosts reduce their sending rate when the network signals congestion, trading throughput for fairness and stability.

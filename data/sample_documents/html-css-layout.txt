@@ -1,0 +1,16 @@
+TITLE: HTML Semantics and Modern CSS Layout
+CATEGORY: Web Development
+AUTHOR: A. D'Souza
+KEYWORDS: html, css, flexbox, grid, semantic markup, responsive design, accessibility
+SUMMARY: Semantic markup describes what content is rather than how it looks, so that assistive technology, search engines and future redesigns all benefit. A page should use headings in order, landmark elements for regions, lists for collections and buttons for actions.
+----------------------------------------------------------------------
+
+Semantic markup describes what content is rather than how it looks, so that assistive technology, search engines and future redesigns all benefit. A page should use headings in order, landmark elements for regions, lists for collections and buttons for actions.
+
+The box model is the mental model for layout: every element is a rectangle with content, padding, border and margin, and the box-sizing property decides whether padding and border are inside the declared size.
+
+Before flexbox and grid, page layout was built with floats and absolute positioning, which meant fighting the document flow. Flexbox distributes space along one axis and aligns items on the cross axis, which makes it the right tool for components, toolbars and navigation. Grid defines two-dimensional tracks, which makes it the right tool for page-level layout and card grids. Using grid for the page and flexbox inside components is the common and sound combination.
+
+Responsive design adapts to the viewport using relative units, flexible breakpoints and content-driven queries rather than device widths.
+
+Accessibility is not optional: colour contrast, visible focus indicators, keyboard operability and descriptive alternative text are what make a page usable for everyone. The dark and light themes in this application both meet the contrast requirements for the same reason.

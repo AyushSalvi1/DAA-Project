@@ -1,0 +1,16 @@
+TITLE: Deep Learning Architectures and Their Costs
+CATEGORY: Machine Learning
+AUTHOR: S. Kulkarni
+KEYWORDS: deep learning, cnn, rnn, transformer, attention, computational cost
+SUMMARY: Deep learning is the use of multilayer neural networks whose representations are learned rather than engineered.
+----------------------------------------------------------------------
+
+Deep learning is the use of multilayer neural networks whose representations are learned rather than engineered.
+
+Convolutional networks exploit locality and translation invariance. Filters slide over the input and share weights, so the parameter count depends on the filter size rather than the image size. Pooling or strided convolutions reduce spatial size, which lets depth grow while compute stays manageable.
+
+Recurrent networks process sequences with a hidden state carried across time steps. Training them sequentially is slow and vanishing gradients hurt long ranges. The long short-term memory cell and the gated recurrent unit were designed specifically to mitigate that problem.
+
+Transformers removed recurrence entirely by making attention the only interaction between positions. Self-attention computes three matrices, queries, keys and values, and returns a weighted average of values with weights given by a scaled dot product of queries and keys. Cost per layer is O(L^2 * d) for sequence length L, so long documents are expensive, which motivated sparse and linear attention variants.
+
+Training cost is dominated by matrix multiplication: roughly six floating point operations per multiply-accumulate, doubled for forward and backward. Estimating and reducing this cost is a large part of practice, as described in [[ai-neural-networks-basics]].

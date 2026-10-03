@@ -1,0 +1,18 @@
+TITLE: Cloud Architecture Patterns and Trade-offs
+CATEGORY: Cloud Computing
+AUTHOR: R. Castellan
+KEYWORDS: cloud architecture, load balancing, microservices, database replication, caching
+SUMMARY: Architecture in the cloud is a set of recurring patterns, each trading cost against control or latency.
+----------------------------------------------------------------------
+
+Architecture in the cloud is a set of recurring patterns, each trading cost against control or latency.
+
+Load balancing distributes requests across instances, spreading load, failing over and enabling rolling deployment. Round robin is simple but ignores capacity, least connections suits long requests, and consistent hashing keeps affinity for cacheable sessions.
+
+Microservices split a system into independently deployed services. They allow independent scaling and team autonomy, at the price of network calls that become failure points, distributed transactions that are hard to reason about, and far more operational surface. A monolith is often the correct starting point.
+
+Caching sits at several layers: in-process, shared cache, content delivery network. Each layer removes work from the layer behind it, and each introduces an invalidation problem. A time-to-live is the simplest correct policy.
+
+Database replication keeps a readable copy, which improves query performance and availability. Replication lag means a read after a write may be stale, so read routing must be chosen deliberately. Message queues decouple producers from consumers and provide buffering, at-least-once delivery and retry with backoff.
+
+Designing for failure means assuming any component can fail, adding timeouts and circuit breakers, and keeping a coherent story about what the user sees while a region is unavailable.

@@ -1,0 +1,16 @@
+TITLE: NoSQL Stores and the CAP Theorem
+CATEGORY: Databases
+AUTHOR: V. Aleksyev
+KEYWORDS: nosql, cap theorem, eventual consistency, key value store, document store
+SUMMARY: NoSQL is a family of stores that abandon the fixed relational schema in exchange for horizontal scale and flexible access patterns.
+----------------------------------------------------------------------
+
+NoSQL is a family of stores that abandon the fixed relational schema in exchange for horizontal scale and flexible access patterns.
+
+Key-value stores map a key to an opaque value. They are the simplest and fastest, but the database cannot query anything it does not know how to key.
+
+Document stores keep self-describing documents and index their fields. Flexibility comes from avoiding schema migration for new attributes, at the cost of weaker cross-document guarantees.
+
+Wide-column and column-family stores group columns per row family so sparse data is cheap. They scale writes by partitioning and are used for very large time-series or event tables. Graph stores keep relationships as first-class edges, which is the right model when traversal is the main query; the algorithms involved are described in [[graph-algorithms]].
+
+The CAP theorem says a distributed store cannot simultaneously guarantee strong consistency, availability under partition, and partition tolerance. Since real networks partition, the choice is consistency or availability. Eventual consistency buys availability and means replicas converge without a fixed bound on delay, so reads may be stale. Choosing the trade-off per operation is more realistic than choosing it per system.

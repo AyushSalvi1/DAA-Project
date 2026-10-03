@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block content %}
+{% set ns = namespace(pr_labels=[], pr_points=[]) %}
+{% for row in pagerank.history %}
+  {% set ns.pr_labels = ns.pr_labels + [row.iteration] %}
+  {% set ns.pr_points = ns.pr_points + [{'y': row.delta, 'x': row.iteration}] %}
+{% endfor %}
+
+<div class="section-title">
+  <h1>Document graph</h1>
+  <div class="rule"></div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat"><span class="stat-value" data-count="{{ stats.nodes }}">0</span><span class="stat-label">Nodes (documents)</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ stats.edges }}">0</span><span class="stat-label">Directed edges</span>
+    <span class="stat-hint">{{ stats.reference_edges }} reference + {{ stats.similarity_edges }} similarity</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ stats.average_degree }}">0</span><span class="stat-label">Average out-degree</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ pagerank.iterations }}">0</span><span class="stat-label">PageRank iterations</span>
+    <span class="stat-hint">damping 0.85, converged: {{ 'yes' if pagerank.converged else 'no' }}</span></div>
+</div>
+
+<div class="split" style="grid-template-columns:minmax(260px,320px) 1fr">
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Traversal</h3></div>
+      <div class="field">
+        <label for="algo">Algorithm</label>
+        <select id="algo">
+          <option value="bfs">BFS &mdash; shortest by edge count</option>
+          <option value="dfs">DFS &mdash; deepest first</option>
+          <option value="dijkstra">Dijkstra &mdash; weighted shortest path</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="start">Start node</label>
+        <select id="start">
+          {% for node in graph_nodes %}<option value="{{ node.id }}" {{ 'selected' if node.id == default_start }}>{{ node.title }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="goal">Target (optional)</label>
+        <select id="goal">
+          <option value="none">none &mdash; full traversal</option>
+          {% for node in graph_nodes %}<option value="{{ node.id }}">{{ node.title }}</option>{% endfor %}
+        </select>
+      </div>
+      <button type="button" class="btn btn-primary" id="run-traversal">Run traversal</button>
+      <div id="traversal-summary" style="margin-top:1rem"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Top authorities</h3><span class="tiny muted">PageRank</span></div>
+      <div id="rank-bars">
+        {% for node in graph_nodes | sort(attribute='pagerank', reverse=true) %}
+          {% if loop.index <= 8 %}
+          <div style="margin-bottom:.55rem">
+            <div style="display:flex;justify-content:space-between;gap:.5rem;font-size:.78rem">
+              <span class="mono">#{{ node.id }} {{ node.title[:26] }}</span>
+              <span class="mono muted">{{ '%.4f' % node.pagerank }}</span>
+            </div>
+            <div class="bar-track"><span class="bar-fill" data-fill="{{ (node.pagerank / (stats.max_pagerank or 1)) * 100 }}"></span></div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-head">
+        <h3>Graph visualisation</h3>
+        <span class="chip chip-brand" id="graph-algorithm">BFS</span>
+      </div>
+      <div class="graph-canvas-wrap">
+        <canvas class="graph-canvas" id="graph-canvas"></canvas>
+      </div>
+      <div class="graph-legend">
+        <span><span class="legend-dot" style="background:#6f8bff"></span>visited</span>
+        <span><span class="legend-dot" style="background:rgba(148,163,208,.4)"></span>unvisited</span>
+        <span><span class="legend-dot" style="background:#22d3ee"></span>path / edges</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Traversal order</h3></div>
+      <div class="tag-list" id="traversal-order"><span class="muted small">Run a traversal to populate this.</span></div>
+      <div id="traversal-levels" style="margin-top:.9rem"></div>
+      <div id="traversal-path" style="margin-top:.9rem"></div>
+      <div id="traversal-details" style="margin-top:.9rem"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.2rem">
+  <div class="card-head">
+    <h3>PageRank convergence history</h3>
+    <span class="tiny muted">L1 delta per iteration &mdash; threshold 1e-6</span>
+  </div>
+  <canvas class="chart" id="pagerank-chart" data-height="220"
+          data-chart='{"labels": {{ ns.pr_labels | tojson }}, "log": true,
+                       "series": [{"name": "L1 delta", "data": {{ ns.pr_points | tojson }}}]}'></canvas>
+  <div class="table-wrap" style="margin-top:1rem">
+    <table>
+      <thead><tr><th class="num">Iteration</th><th class="num">L1 delta</th><th>Top 3 documents</th></tr></thead>
+      <tbody>
+        {% for row in pagerank.history[:14] %}
+          <tr>
+            <td class="num">{{ row.iteration }}</td>
+            <td class="num">{{ '%.3e' % row.delta }}</td>
+            <td class="muted small">
+              {% for item in row.top[:3] %}{{ item.node }} ({{ '%.4f' % item.score }}){% if not loop.last %} &middot; {% endif %}{% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.2rem">
+  <div class="card-head"><h3>Edge list</h3><span class="tiny muted">{{ edges | length }} edges</span></div>
+  <div class="table-wrap" style="max-height:420px;overflow-y:auto">
+    <table>
+      <thead><tr><th>Source</th><th>Target</th><th>Type</th><th class="num">Weight</th><th>Reason</th></tr></thead>
+      <tbody>
+        {% for edge in edges[:220] %}
+          <tr>
+            <td class="mono tiny">#{{ edge.source }}</td>
+            <td class="mono tiny">#{{ edge.target }}</td>
+            <td><span class="chip {{ 'chip-brand' if edge.type == 'reference' }}">{{ edge.type }}</span></td>
+            <td class="num">{{ '%.2f' % edge.weight }}</td>
+            <td class="muted small">{{ edge.label }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const NODES = {{ graph_nodes | tojson }};
+  const EDGES = {{ edges | tojson }};
+  const canvas = document.getElementById("graph-canvas");
+  let positions = {};
+  let visited = new Set();
+  let highlightPath = new Set();
+
+  const byId = {};
+  NODES.forEach(n => { byId[n.id] = n; });
+
+  function layout() {
+    const w = canvas.clientWidth || 700, h = canvas.clientHeight || 460;
+    const cx = w / 2, cy = h / 2;
+    const radius = Math.min(w, h) / 2 - 55;
+    const maxRank = Math.max.apply(null, NODES.map(n => n.pagerank)) || 1;
+    positions = {};
+    NODES.forEach((node, index) => {
+      const angle = (2 * Math.PI * index) / NODES.length - Math.PI / 2;
+      positions[node.id] = {
+        x: cx + radius * Math.cos(angle),
+        y: cy + radius * Math.sin(angle),
+        r: 7 + (node.pagerank / maxRank) * 9
+      };
+    });
+  }
+
+  function draw() {
+    if (!Object.keys(positions).length) layout();
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== w * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    EDGES.forEach(edge => {
+      const a = positions[edge.source], b = positions[edge.target];
+      if (!a || !b) return;
+      const onPath = highlightPath.has(edge.source) && highlightPath.has(edge.target);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = onPath ? "rgba(34,211,238,.85)" :
+        (visited.has(edge.source) ? "rgba(111,139,255,.45)" : "rgba(148,163,208,.14)");
+      ctx.lineWidth = onPath ? 2.2 : 1.1;
+      ctx.stroke();
+    });
+
+    NODES.forEach(node => {
+      const p = positions[node.id];
+      const active = visited.has(node.id);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = active ? "#6f8bff" : "rgba(148,163,208,.22)";
+      ctx.fill();
+      ctx.strokeStyle = active ? "#e8ecf8" : "rgba(148,163,208,.4)";
+      ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = active ? "#08122a" : "rgba(200,210,235,.7)";
+      ctx.font = 'bold 10px "Inter", sans-serif';
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("#" + node.id, p.x, p.y);
+    });
+  }
+
+  window.addEventListener("resize", () => { positions = {}; draw(); });
+
+  document.getElementById("run-traversal").addEventListener("click", async function () {
+    const button = this;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner"></span> Running';
+    const algorithm = document.getElementById("algo").value;
+    const start = document.getElementById("start").value;
+    const goal = document.getElementById("goal").value;
+    try {
+      const response = await fetch(`/graph/traverse?algorithm=${algorithm}&start=${start}&goal=${goal}`);
+      const data = await response.json();
+      document.getElementById("graph-algorithm").textContent = data.algorithm || algorithm.toUpperCase();
+      if (data.error) {
+        document.getElementById("traversal-summary").innerHTML =
+          '<div class="alert alert-err small">' + data.error + "</div>";
+        return;
+      }
+      visited = new Set((data.traversal || []).map(row => row[0]));
+      highlightPath = new Set((data.shortest_path || []).map(row => row[0]));
+      draw();
+
+      document.getElementById("traversal-order").innerHTML = (data.traversal || [])
+        .map(row => '<span class="tag accent">#' + row[0] + " " + window.NexaEscape(row[1]) + "</span>").join("")
+        || '<span class="muted small">no nodes visited</span>';
+
+      let html = "";
+      if (data.levels) {
+        html += '<h4>BFS levels</h4><div class="chip-row">' +
+          data.levels.map((level, i) => '<span class="chip chip-brand">L' + i + ": " +
+            level.join(", ") + "</span>").join("") + "</div>";
+      }
+      if (data.shortest_path && data.shortest_path.length) {
+        html += '<h4>Shortest path</h4><div class="tag-list">' +
+          data.shortest_path.map(row => '<span class="tag">#' + row[0] + " " + window.NexaEscape(row[1]) + "</span>")
+            .join(" &rarr; ") + "</div>" +
+          (data.shortest_distance !== null && data.shortest_distance !== undefined
+            ? '<p class="small muted">Total weight: <strong>' + data.shortest_distance + "</strong></p>" : "");
+      }
+      document.getElementById("traversal-levels").innerHTML = html;
+      document.getElementById("traversal-path").innerHTML = "";
+      document.getElementById("traversal-details").innerHTML =
+        '<p class="small muted">' + (data.details ? data.details.note : "") + "</p>";
+
+      const chips = [];
+      (data.traversal || []).forEach((row, index) => {
+        chips.push('<span class="chip">#' + index + " " + window.NexaEscape(row[1]) + "</span>");
+      });
+      document.getElementById("traversal-summary").innerHTML =
+        '<div class="chip-row">' + chips.slice(0, 12).join("") + "</div>";
+
+      const steps = (data.steps || []).slice(0, 60);
+      if (steps.length) {
+        document.getElementById("traversal-details").innerHTML +=
+          '<details class="accordion"><summary>First ' + steps.length + ' steps</summary>' +
+          '<div class="accordion-body"><div class="step-list">' +
+          steps.map((s, i) => '<div class="step"><span class="step-index">' + (i + 1) +
+            '</span><span class="step-text">' + window.NexaEscape(s.description || "") + "</span></div>").join("") +
+          "</div></div></details>";
+      }
+    } catch (error) {
+      document.getElementById("traversal-summary").innerHTML =
+        '<div class="alert alert-err small">' + error.message + "</div>";
+    } finally {
+      button.disabled = false;
+      button.textContent = "Run traversal";
+    }
+  });
+
+  draw();
+})();
+</script>
+{% endblock %}

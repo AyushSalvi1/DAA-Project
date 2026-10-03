@@ -1,0 +1,16 @@
+TITLE: Unsupervised Learning: Clustering and Dimensionality Reduction
+CATEGORY: Machine Learning
+AUTHOR: Prof. R. Menon
+KEYWORDS: unsupervised learning, k-means, clustering, pca, dimensionality reduction
+SUMMARY: Unsupervised learning works with unlabelled data. Its two goals are to discover structure, usually by grouping similar points, and to compress by discarding redundant dimensions.
+----------------------------------------------------------------------
+
+Unsupervised learning works with unlabelled data. Its two goals are to discover structure, usually by grouping similar points, and to compress by discarding redundant dimensions.
+
+K-means partitions data into k clusters by alternating two steps: assign each point to the nearest centroid, then recompute each centroid as the mean of its members. Each iteration cannot increase the objective, so the algorithm terminates, but it can converge to a poor local optimum and it needs k in advance. Choosing k is often done with the elbow method or a silhouette score.
+
+K-means assumes roughly spherical clusters of similar size, so density-based methods such as DBSCAN, which can find arbitrarily shaped clusters and reject outliers, are often a better fit.
+
+Principal component analysis finds the directions of maximum variance by computing eigenvectors of the covariance matrix. Keeping the first k components minimises reconstruction error under a linear constraint. PCA is efficient for moderate dimensions, but computing eigenvectors is O(n * d^2) for d dimensions, so very wide data usually needs randomised or incremental methods.
+
+Unsupervised results are hard to validate because there is no ground truth; stability across resamples and usefulness for a downstream task are the practical criteria.

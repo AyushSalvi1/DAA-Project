@@ -1,0 +1,16 @@
+TITLE: The Data Science Process from Question to Decision
+CATEGORY: Data Science
+AUTHOR: N. Iyer
+KEYWORDS: data science process, problem framing, hypothesis, deployment, cross functional
+SUMMARY: Data science is often described as a sequence of steps, but the order matters more than the labels. The process starts with a question that someone will actually act on. A precise question has a population, an outcome, a time window and a decision attached to it.
+----------------------------------------------------------------------
+
+Data science is often described as a sequence of steps, but the order matters more than the labels. The process starts with a question that someone will actually act on. A precise question has a population, an outcome, a time window and a decision attached to it.
+
+Only then does data collection begin. Collecting is easy to over-engineer; a small, correctly labelled sample answers a question faster than a large, noisy one. Exploration follows, and its purpose is to find surprises: distributions, correlations, missingness patterns and outright impossible values.
+
+Preparation is where most of the real work lives: cleaning, joining, reshaping and deriving features. Statistical analysis then tests whether the pattern is distinguishable from noise, with the caution that many comparisons on the same data will look significant by chance.
+
+Model building is iterative, and the loop is short: build, measure, adjust. Communication is continuous rather than a final step, because a result nobody understands cannot change a decision.
+
+Deployment is where projects are usually abandoned. Monitoring must track both prediction quality and input drift, and a model that cannot be rolled back is not finished. Governance of the deployed system is described in [[ai-ethics]] and its operational counterpart in [[devops-fundamentals]].

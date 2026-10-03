@@ -1,0 +1,16 @@
+TITLE: Data Cleaning: Missing Values, Outliers and Duplicates
+CATEGORY: Data Science
+AUTHOR: N. Iyer
+KEYWORDS: data cleaning, missing values, outliers, duplicates, validation
+SUMMARY: Cleaning is the step everyone skips and everybody needs. Three problems dominate.
+----------------------------------------------------------------------
+
+Cleaning is the step everyone skips and everybody needs. Three problems dominate.
+
+Missing data has three mechanisms: missing completely at random, missing at random given observed values, and missing not at random, where the value itself depends on the process. Deleting rows is safe only in the first case. Imputation with the mean or median is acceptable for the second and distorts the distribution otherwise. For the third, a missingness indicator is often the most informative feature available.
+
+Outliers are values that are far from the bulk. Robust detection uses the interquartile range, defining outliers beyond one and a half times the interquartile range from the first and third quartiles, or a median absolute deviation. Treat them as errors only when a domain rule says so; a hundredfold revenue outlier is often the most important row in the data.
+
+Duplicates arise from repeated measurement, joining on a non-unique key, and inconsistent identifiers. Hashing a normalised row is a cheap way to detect exact duplicates, and near duplicates need token or attribute similarity instead, which is the same idea the search engine uses for [[string-matching-algorithms]].
+
+Validation rules should be declarative and run in a pipeline: types, ranges, referential integrity and uniqueness.

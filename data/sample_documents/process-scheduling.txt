@@ -1,0 +1,14 @@
+TITLE: Process Scheduling Policies and Deadlocks
+CATEGORY: Operating Systems
+AUTHOR: L. Moreau
+KEYWORDS: process scheduling, round robin, priority, first fit, deadlock, banker's algorithm
+SUMMARY: The scheduler decides which ready process runs next, and its objective changes with the workload: throughput for batch, response time for interactive, fairness for servers.
+----------------------------------------------------------------------
+
+The scheduler decides which ready process runs next, and its objective changes with the workload: throughput for batch, response time for interactive, fairness for servers.
+
+First come first served is simple and fair on average but suffers the convoy effect, where a long job blocks everyone. Shortest job first provably minimises average waiting time, but it needs to know runtimes in advance and starves long jobs. Shortest remaining time is preemptive and optimal for average waiting. Round robin gives every process a slice and adds a context switch every slice, so its cost is O(n) per slice for n runnable processes.
+
+Priority scheduling serves the highest priority first, with ageing to prevent starvation. Multilevel feedback queues approximate the behaviour of shortest job first without knowing runtimes by demoting processes that use their slice.
+
+Deadlock requires mutual exclusion, hold and wait, no preemption and circular wait. Prevention breaks one condition directly, which usually costs concurrency. Detection runs an algorithm to discover whether a deadlock exists; the banker's algorithm does this by simulating all future requests. Avoidance, which is the banker's approach, admits a request only if a safe sequence remains possible.

@@ -1,0 +1,16 @@
+TITLE: Memory Management: Paging, Segmentation and Replacement
+CATEGORY: Operating Systems
+AUTHOR: L. Moreau
+KEYWORDS: memory management, paging, page table, tlb, page fault, virtual memory, lru
+SUMMARY: Each process sees a contiguous virtual address space that the operating system maps to physical frames. Paging splits both spaces into fixed-size pages and frames and keeps them in a page table, which removes the need for contiguous allocation.
+----------------------------------------------------------------------
+
+Each process sees a contiguous virtual address space that the operating system maps to physical frames. Paging splits both spaces into fixed-size pages and frames and keeps them in a page table, which removes the need for contiguous allocation.
+
+A page fault occurs when a referenced page is not resident. The operating system loads it from disk, replacing another page if necessary. If no free frame exists it must evict. The translation lookaside buffer caches recent page table entries in hardware, so a miss there costs a memory access rather than a full page table walk.
+
+Page replacement policies differ sharply. Optimal replacement evicts the page not used for the longest future time, which is unimplementable but a useful bound. Least recently used approximates it and is O(1) to record, though true LRU needs a hardware counter or a stack, and suffers from the sequential-scan pathology where one pass evicts everything another pass needs. Clock approximates LRU with a single sweep bit, which is cheap and behaves well.
+
+Thrashing happens when a process is given too few frames and spends more time paging than working, which costs more than not running. The working set model and page-fault frequency control both respond.
+
+Page size is a genuine trade-off: large pages cut table entries and overhead, small pages waste less memory on partially used pages.

@@ -1,0 +1,14 @@
+TITLE: Dynamic Programming, Greedy Choice and Memoisation
+CATEGORY: Algorithms
+AUTHOR: Prof. S. Iyer
+KEYWORDS: dynamic programming, memoisation, optimal substructure, greedy algorithm, bellman ford, knapsack
+SUMMARY: Dynamic programming applies to problems with two properties. Optimal substructure means an optimal solution is composed of optimal solutions to subproblems. Overlapping subproblems means the same subproblem is solved again and again. It trades space for time, converting exponential recomputation int
+----------------------------------------------------------------------
+
+Dynamic programming applies to problems with two properties. Optimal substructure means an optimal solution is composed of optimal solutions to subproblems. Overlapping subproblems means the same subproblem is solved again and again. It trades space for time, converting exponential recomputation into a single evaluation per state.
+
+The procedure is to define the state, write the recurrence relating states, choose an evaluation order such as increasing state size, and memoise. Fibonacci recursion without memoisation takes O(phi^n) calls; with memoisation it takes O(n) states, each computed once. The length of a longest common subsequence follows the recurrence of comparing the last characters: if they match take one plus the diagonal, otherwise take the better of the two neighbours.
+
+Greedy algorithms make the locally best choice and never revisit it. They are dramatically faster, usually O(n log n), but correct only when a proof shows the local choice is safe. Activity selection, Huffman coding and Kruskal's algorithm are greedy; shortest path is not, which is exactly why Dijkstra needs a priority queue.
+
+Dynamic programming also underpins the ranking in this project: term weights, document frequencies and PageRank are all states that would otherwise be recomputed for every query. Cache them once and each query becomes a cheap lookup.

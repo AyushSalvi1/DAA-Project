@@ -1,0 +1,18 @@
+TITLE: Cloud Service Models: IaaS, PaaS and SaaS
+CATEGORY: Cloud Computing
+AUTHOR: R. Castellan
+KEYWORDS: cloud computing, iaas, paas, saas, shared responsibility, elasticity
+SUMMARY: Cloud computing delivers computing resources over a network as a metered service. Three service models differ in how much management the customer keeps.
+----------------------------------------------------------------------
+
+Cloud computing delivers computing resources over a network as a metered service. Three service models differ in how much management the customer keeps.
+
+Infrastructure as a Service gives virtual machines, storage and networking. The provider manages the physical layer and virtualisation; the customer manages the operating system, runtime and data. This gives the most control and the most responsibility, and it suits workloads with unusual requirements or existing operating-system expertise, as described in [[operating-systems-concepts]].
+
+Platform as a Service gives a managed runtime: databases, queues, schedules and deployment pipelines. The customer supplies only code and data. This removes most operational work at the cost of portability, because the platform APIs are proprietary.
+
+Software as a Service is the finished application, reached through a browser or API. The provider owns everything, including availability, patching and scaling.
+
+The shared responsibility model states exactly who secures what. In IaaS the customer secures the guest operating system onwards; in SaaS the customer secures only identity and data. Misreading this boundary is the most common cause of cloud security incidents, which is why [[cybersecurity-fundamentals]] treats it explicitly.
+
+Elasticity, the ability to grow capacity on demand and shrink it back, is the economic argument for moving to the cloud.

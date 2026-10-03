@@ -1,0 +1,16 @@
+TITLE: Ethical Hacking, Penetration Testing and Responsible Disclosure
+CATEGORY: Cybersecurity
+AUTHOR: K. Osei
+KEYWORDS: ethical hacking, penetration testing, vulnerability assessment, responsible disclosure
+SUMMARY: Penetration testing is an authorised attempt to break a system so the owner learns how before an adversary does. Legality rests entirely on written authorisation that names the systems, the dates and the testing methods.
+----------------------------------------------------------------------
+
+Penetration testing is an authorised attempt to break a system so the owner learns how before an adversary does. Legality rests entirely on written authorisation that names the systems, the dates and the testing methods.
+
+Testing is structured into phases: reconnaissance, scanning, gaining access, maintaining access, covering tracks, and reporting. Reconnaissance is open-source intelligence; scanning finds live hosts and services; the rest validate whether the defences actually work.
+
+A vulnerability assessment is broader and shallower: it enumerates and ranks known issues without necessarily exploiting them. A penetration test is narrower and deeper. Both end with a report that ranks findings by business impact, gives reproduction steps and remediation guidance, and avoids publishing exploit details for unpatched systems.
+
+Responsible disclosure coordinates with the vendor: report privately, allow a stated period for a fix, then disclose. Programmes now exist in most large vendors and often pay bounties, which turns a harmful act into a legitimate contribution.
+
+Ethical practice also includes scope discipline. Testing infrastructure you were not authorised to touch is a crime regardless of intent, and third-party services in scope of a contract may not be covered by a test authorisation at all.

@@ -1,0 +1,16 @@
+TITLE: Serverless Computing and Function-as-a-Service
+CATEGORY: Cloud Computing
+AUTHOR: R. Castellan
+KEYWORDS: serverless, function as a service, cold start, event driven, autoscaling
+SUMMARY: Serverless means the customer manages no servers at all. The platform allocates, patches and scales capacity per request, and the customer pays only for invocations and duration.
+----------------------------------------------------------------------
+
+Serverless means the customer manages no servers at all. The platform allocates, patches and scales capacity per request, and the customer pays only for invocations and duration.
+
+The unit of execution is a function invoked by an event: an HTTP request, a queue message or a schedule. The programming model is stateless, so anything that must persist goes into a database or object store. This is a direct constraint on design, not merely a convenience.
+
+Cold start is the delay between an invocation and execution while the platform starts an instance. It is paid on the first request after idle time, and it is why latency-sensitive endpoints need provisioned concurrency.
+
+Autoscaling reacts to a metric such as concurrency or queue depth. Scaling too slowly causes a backlog; scaling too quickly wastes money and can oscillate, so hysteresis matters.
+
+Function size and duration limits are real constraints, and very long jobs belong in a workflow engine or a queue consumer. Serverless composes well with event-driven pipelines and is a poor fit for sustained high utilisation with steady load, where reserved capacity is cheaper.

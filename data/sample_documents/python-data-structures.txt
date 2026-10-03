@@ -1,0 +1,18 @@
+TITLE: Python Data Structures: Choosing the Right Container
+CATEGORY: Python
+AUTHOR: J. Whitfield
+KEYWORDS: python data structures, deque, heapq, bisect, defaultdict, counter, namedtuple
+SUMMARY: Choosing a container in Python is a complexity decision.
+----------------------------------------------------------------------
+
+Choosing a container in Python is a complexity decision.
+
+The list is the general sequence with O(1) amortised append at the end, but adding or removing at the front is O(n) because elements shift. The double-ended queue is the correct container for a queue or a sliding window, with O(1) operations at both ends.
+
+A priority queue keeps the smallest element available in O(1) and pops in O(log n), which is what the shortest-path algorithm needs. Two implementation details matter: comparison of tuples falls back to the second element when the first ties, which makes counter-intuitive results appear if the second element is not of the same type; and lazy deletion means stale entries stay in the heap until popped, so the algorithm must check whether an entry is out of date.
+
+Bisection finds an insertion point in a sorted sequence in O(log n) comparisons, but its C implementation needs only O(log n) comparisons too, so no custom binary search is needed for speed alone. This project implements binary search by hand anyway, because the algorithm is the subject.
+
+A dictionary with a default factory avoids repeated membership checks, and a counting helper removes the most common counting loop.
+
+Named tuples and small classes give records with readable attribute access, which keeps algorithms readable instead of dictionary indexing.

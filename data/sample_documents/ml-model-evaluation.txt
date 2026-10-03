@@ -1,0 +1,14 @@
+TITLE: Evaluating Models: Bias, Variance and the Metrics That Matter
+CATEGORY: Machine Learning
+AUTHOR: Prof. R. Menon
+KEYWORDS: model evaluation, precision, recall, f1 score, confusion matrix, cross validation
+SUMMARY: A model that is not measured cannot be improved, and a model measured on the wrong data is measured wrongly. Evaluation has two independent parts: choosing the data split and choosing the metric.
+----------------------------------------------------------------------
+
+A model that is not measured cannot be improved, and a model measured on the wrong data is measured wrongly. Evaluation has two independent parts: choosing the data split and choosing the metric.
+
+Train, validation and test sets should be disjoint. Because samples are often correlated, a random split can leak information; grouping by patient, user or time period is usually correct. K-fold cross-validation rotates the folds so every example is used for testing once, and it costs k times the training run.
+
+For classification the confusion matrix is the primitive. Accuracy is misleading on imbalanced data. Precision is the fraction of positive predictions that are correct, recall the fraction of true positives that are found, and the F1 score their harmonic mean, which punishes imbalance between the two. Area under the precision-recall curve is the right summary when positives are rare; area under the receiver operating characteristic curve is the right one when the operating point is not fixed.
+
+Underfitting means high bias: the model cannot represent the pattern. Overfitting means high variance: it memorised noise. The gap between training and validation error diagnoses which one is happening. Regularisation, early stopping and more data all attack variance; a richer hypothesis class attacks bias.

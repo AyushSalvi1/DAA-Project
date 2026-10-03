@@ -1,0 +1,20 @@
+TITLE: Docker and Container Image Management
+CATEGORY: DevOps
+AUTHOR: P. Sandhu
+KEYWORDS: docker, container image, layer, registry, compose, entrypoint, security
+SUMMARY: An image is a set of layers; a container is a running instance with a writable top layer. Each layer stores only the files that differ from the layer below, so unchanged files are shared between images.
+----------------------------------------------------------------------
+
+An image is a set of layers; a container is a running instance with a writable top layer. Each layer stores only the files that differ from the layer below, so unchanged files are shared between images.
+
+Because layers are content-addressed, build cache depends on instruction order. Copying the dependency manifest before the source, and installing dependencies immediately, means a source-only change does not invalidate the dependency layer. Getting this wrong is the most common cause of slow builds.
+
+Writing layers in the right order also produces smaller, safer images. Combining package installation and cleanup in one layer prevents the caches and lists of the package manager from surviving in a later layer, since deleted files still occupy space in the layer where they were created.
+
+Multi-stage builds compile in a full builder image and copy only the artefact into a minimal runtime image, so compilers and headers never reach production.
+
+The entrypoint and command form the process contract. The main process should run in the foreground and receive signals, otherwise graceful shutdown is impossible.
+
+Images run as root by default, which is unnecessary and dangerous. Running as a non-root user, scanning images for known vulnerabilities in a registry, and pinning base images by digest are all part of a reasonable supply-chain policy.
+
+A compose file describes several containers that must work together for local development, which is how the database in this project is started locally.

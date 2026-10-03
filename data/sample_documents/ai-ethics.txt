@@ -1,0 +1,14 @@
+TITLE: Ethics, Bias and Accountability in AI Systems
+CATEGORY: Artificial Intelligence
+AUTHOR: Dr. M. Fernandes
+KEYWORDS: ai ethics, algorithmic bias, fairness, explainability, accountability
+SUMMARY: A model learns whatever signal is present in its training data. If historical decisions were unfair, the model reproduces those unfairness patterns at scale, and it does so without anyone writing the rule explicitly.
+----------------------------------------------------------------------
+
+A model learns whatever signal is present in its training data. If historical decisions were unfair, the model reproduces those unfairness patterns at scale, and it does so without anyone writing the rule explicitly.
+
+Two bias mechanisms dominate. Sampling bias occurs when the training set does not represent the deployment population. Measurement bias occurs when a proxy variable stands in for the real thing. Both reduce coverage for minority groups, and the usual accuracy metric hides this because overall accuracy is dominated by the majority class.
+
+Common fairness definitions are mutually incompatible in general. Demographic parity requires equal positive rates across groups. Equalised odds requires equal true positive and false positive rates. A system can satisfy one and violate the other unless the base rates are equal, which is the theorem behind the impossibility result. Choosing a definition is therefore a policy decision, not a technical one.
+
+Accountability requires more than accuracy. A responsible system documents its training data, reports performance per subgroup, exposes a route to challenge a decision, and can be audited. Interpretability techniques such as feature importance and surrogate models help, and they connect back to the ranking ideas in [[data-visualization]] where each factor can be shown to a user.

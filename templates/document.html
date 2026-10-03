@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>{{ doc.title }}</h1>
+  <div class="rule"></div>
+  <div class="pill-group">
+    <a class="btn btn-sm" href="{{ url_for('search.search', q=doc.title.split(':')[0]) }}">Find related</a>
+    <a class="btn btn-sm" href="{{ url_for('admin.preview_document', doc_id=doc.id) }}">Admin view</a>
+  </div>
+</div>
+
+<div class="chip-row" style="margin-bottom:1rem">
+  <span class="chip chip-brand">{{ doc.category }}</span>
+  <span class="chip">{{ doc.author }}</span>
+  <span class="chip">#{{ doc.id }}</span>
+  <span class="chip">{{ doc.created[:10] }}</span>
+  <span class="chip">{{ doc.hits }} view(s)</span>
+  {% if node %}
+    <span class="chip chip-ok">PageRank {{ '%.5f' % node.pagerank }}</span>
+    <span class="chip">in-degree {{ node.in_degree }}</span>
+  {% endif %}
+</div>
+
+<div class="split">
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Metadata</h3></div>
+      <dl class="kv">
+        <dt>Document ID</dt><dd class="mono">{{ doc.id }}</dd>
+        <dt>Slug</dt><dd class="mono">{{ doc.slug }}</dd>
+        <dt>Reference</dt><dd class="mono">{{ doc.url or '-' }}</dd>
+        <dt>Category</dt><dd>{{ doc.category }}</dd>
+        <dt>Author</dt><dd>{{ doc.author }}</dd>
+        <dt>Created</dt><dd>{{ doc.created }}</dd>
+        <dt>Updated</dt><dd>{{ doc.updated }}</dd>
+        <dt>Length</dt><dd>{{ doc.content | length }} characters</dd>
+        <dt>Stored tokens</dt><dd>{{ doc.token_count }}</dd>
+      </dl>
+      <h4 style="margin-top:1rem">Keywords</h4>
+      <div class="tag-list">
+        {% for keyword in doc.keywords %}
+          <a class="tag accent" href="{{ url_for('search.search', q=keyword) }}">{{ keyword }}</a>
+        {% else %}
+          <span class="muted small">No keywords declared.</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if related %}
+      <div class="card">
+        <div class="card-head"><h3>Related documents</h3><span class="tiny muted">graph neighbours</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Document</th><th class="num">Edge</th><th class="num">PageRank</th></tr></thead>
+            <tbody>
+              {% for row in related %}
+                <tr>
+                  <td><a href="{{ url_for('search.document', doc_id=row.id) }}">{{ row.title }}</a></td>
+                  <td class="num">{{ '%.2f' % row.edge_weight }}</td>
+                  <td class="num">{{ '%.5f' % row.pagerank }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Content</h3>
+      <span class="tiny muted">Cross-references shown as [[slug]] are the directed graph edges</span>
+    </div>
+    <div class="doc-body">{{ doc.content }}</div>
+  </div>
+</div>
+
+{% endblock %}

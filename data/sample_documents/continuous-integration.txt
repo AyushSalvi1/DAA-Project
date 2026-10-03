@@ -1,0 +1,18 @@
+TITLE: Continuous Integration and Deployment Pipelines
+CATEGORY: DevOps
+AUTHOR: P. Sandhu
+KEYWORDS: continuous integration, pipeline, unit testing, build automation, canary release, rollback
+SUMMARY: A pipeline turns a commit into a running artifact through fixed stages: build, unit test, static analysis, integration test, package, deploy to staging, verify, and promote to production.
+----------------------------------------------------------------------
+
+A pipeline turns a commit into a running artifact through fixed stages: build, unit test, static analysis, integration test, package, deploy to staging, verify, and promote to production.
+
+Builds must be reproducible, which means pinning dependency versions, not depending on the state of a developer machine, and building from a clean environment.
+
+Testing at different stages costs different amounts and catches different classes of defect. Unit tests are fast and numerous, integration tests exercise real dependencies, and end-to-end tests are slow but cover user-visible paths. Most defects should be caught by the cheap layers, because a defect found in an end-to-end test has already consumed the whole pipeline.
+
+A pipeline must fail fast, and the signal must be visible. Flaky tests are worse than missing tests because they teach the team to ignore red builds.
+
+Deployment strategies trade blast radius against speed. Recreate stops everything, which is unacceptable at scale. Rolling updates keep old and new versions running together, so both schemas must be compatible during the overlap. Blue-green switches instantly but doubles capacity. Canary releases send a small fraction of traffic to the new version, which is the safest and needs the best observability.
+
+Rollback must be automatic, rehearsed, and faster than debugging. A release nobody can undo is a release nobody should ship.

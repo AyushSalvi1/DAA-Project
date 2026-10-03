@@ -1,0 +1,14 @@
+TITLE: Statistics for Data Science: Estimation, Testing and Correlation
+CATEGORY: Data Science
+AUTHOR: N. Iyer
+KEYWORDS: statistics, mean, variance, standard deviation, p-value, correlation
+SUMMARY: Descriptive statistics summarise a sample. The mean is the arithmetic average, the median is the middle value and is robust to outliers, and the mode is the most frequent value. Spread is measured by the range, the interquartile range, the variance and the standard deviation. The variance is the ave
+----------------------------------------------------------------------
+
+Descriptive statistics summarise a sample. The mean is the arithmetic average, the median is the middle value and is robust to outliers, and the mode is the most frequent value. Spread is measured by the range, the interquartile range, the variance and the standard deviation. The variance is the average squared deviation from the mean, so it is measured in squared units and must be square-rooted to be interpretable.
+
+Because the variance uses squared deviations it is sensitive to outliers, which is why robust alternatives exist. Reporting only a mean without a spread is the most common reporting error in analysis.
+
+Inference estimates a population from a sample. A confidence interval expresses the plausible range of an estimate; a hypothesis test asks whether observed data would be surprising under a null model. The p-value is the probability of data at least as extreme as what was observed, given the null. It is not the probability that the null is true, a misunderstanding that causes most over-claiming.
+
+Correlation measures linear association, usually with the Pearson coefficient between minus one and one. It is scale invariant but not robust: an outlier can dominate it. Correlation is not causation, and two variables can correlate strongly because of a third or by coincidence. Distribution shape is covered in [[data-visualization]] and preparation in [[data-cleaning]].

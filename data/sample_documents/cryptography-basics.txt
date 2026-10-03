@@ -1,0 +1,16 @@
+TITLE: Applied Cryptography: Hashing, Symmetric and Asymmetric Keys
+CATEGORY: Cybersecurity
+AUTHOR: K. Osei
+KEYWORDS: cryptography, hashing, sha256, symmetric encryption, aes, rsa, public key
+SUMMARY: Cryptography provides confidentiality, integrity, authentication and non-repudiation. Three primitive families do the work.
+----------------------------------------------------------------------
+
+Cryptography provides confidentiality, integrity, authentication and non-repudiation. Three primitive families do the work.
+
+A cryptographic hash maps any input to a fixed-size digest and must be deterministic, fast to compute, preimage resistant, second-preimage resistant and collision resistant. SHA-256 produces 256 bits and is the usual default. Password storage does not use a plain hash: it uses a slow, salted, iterated key derivation function such as bcrypt, scrypt or Argon2, so that guessing is expensive and identical passwords produce different stored values.
+
+Symmetric encryption uses one shared key. AES in Galois counter mode is the modern default and runs at gigabytes per second, but both parties must hold the key, so distribution is the hard problem.
+
+Asymmetric encryption uses a key pair. The public key can be published; the private key is never shared. It solves key distribution and enables digital signatures, at the cost of being far slower. RSA and elliptic curve schemes such as ECDSA are in common use.
+
+In practice, protocols combine them: transport layer security establishes a shared symmetric session key with asymmetric key exchange and then encrypts bulk data symmetrically. Hashing is the same rolling-hash idea used by [[string-matching-algorithms]] in string matching, but designed against adversaries.

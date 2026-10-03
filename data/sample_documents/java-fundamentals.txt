@@ -1,0 +1,16 @@
+TITLE: Java Fundamentals: Objects, Types and the Garbage Collector
+CATEGORY: Java
+AUTHOR: H. Yamada
+KEYWORDS: java, jvm, object oriented, type system, garbage collection, jit
+SUMMARY: Java compiles source code to bytecode that runs on any Java virtual machine, which is where the language's portability comes from. The JIT compiler inside the JVM then compiles hot methods to native code at runtime, so performance depends on how well the JIT can profile the program.
+----------------------------------------------------------------------
+
+Java compiles source code to bytecode that runs on any Java virtual machine, which is where the language's portability comes from. The JIT compiler inside the JVM then compiles hot methods to native code at runtime, so performance depends on how well the JIT can profile the program.
+
+The type system is static and nominal: a variable's type is declared and enforced at compile time, and code cannot reinterpret a value as an unrelated type. Widening conversions are implicit, narrowing ones need an explicit cast, and autoboxing converts between primitives and their wrapper objects.
+
+Everything with an identity lives on the heap and is managed by a garbage collector; primitives and references live on the stack. The collector traces reachable objects from roots and reclaims the rest. Collecting unreachable objects is the easy part; collecting reachable ones that are no longer used is the hard part, and it is the job of reference counting in managed languages and escape analysis in the compiler.
+
+Equality has two forms. Reference identity is compared with the identity operator. Logical equality is compared with equals and must be implemented deliberately, especially when objects are used as keys in a hash-based structure.
+
+Checked exceptions are part of the language contract: the compiler forces the caller to handle or declare a checked exception, which makes failure paths visible in the signature.

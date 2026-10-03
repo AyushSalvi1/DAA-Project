@@ -1,0 +1,14 @@
+TITLE: Data Visualisation Principles for Honest Communication
+CATEGORY: Data Science
+AUTHOR: Dr. M. Fernandes
+KEYWORDS: data visualization, bar chart, scatter plot, misleading charts, dashboard
+SUMMARY: A chart is an argument made with geometry, so chart design is partly an ethics question. Truncating a bar axis exaggerates differences; a dual axis creates apparent correlation between unrelated series; colour scales that ignore the data range hide structure.
+----------------------------------------------------------------------
+
+A chart is an argument made with geometry, so chart design is partly an ethics question. Truncating a bar axis exaggerates differences; a dual axis creates apparent correlation between unrelated series; colour scales that ignore the data range hide structure.
+
+Choosing the mark follows the question. Comparison of categories uses bars or dots on a common baseline. Change over time uses lines, with a truthful time axis. Distribution uses histograms, box plots or violin plots. Relationship between two numeric variables uses a scatter plot. Composition uses stacked bars, and readers should compare segments only when they share a common baseline.
+
+Colour has jobs: categorical hues separate groups, sequential ramps encode ordered values, and diverging ramps show deviation around a meaningful midpoint. Roughly eight percent of men have some colour vision deficiency, so red-green pairs are a poor default and redundant encodings such as shape or direct labels are safer.
+
+Dashboards are for monitoring a small number of known questions, with a fixed layout read repeatedly. Exploratory analysis wants flexibility. Both must show the uncertainty, not just the point estimate, and every number should be traceable to the query that produced it.

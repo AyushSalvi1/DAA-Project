@@ -1,0 +1,18 @@
+TITLE: DevOps Fundamentals: Culture, Automation and Feedback Loops
+CATEGORY: DevOps
+AUTHOR: P. Sandhu
+KEYWORDS: devops, automation, continuous delivery, feedback loop, toil, infrastructure as code
+SUMMARY: DevOps is the set of practices that shorten the time between writing code and getting useful feedback from users, while keeping the system releasable.
+----------------------------------------------------------------------
+
+DevOps is the set of practices that shorten the time between writing code and getting useful feedback from users, while keeping the system releasable.
+
+The core mechanism is a feedback loop. Without automation, feedback travels by ticket and email and takes days, by which time it is about a different version of the system. With automation the loop is minutes, and that frequency is what makes small batches safe.
+
+Continuous integration means every change is built and tested on a shared branch. Continuous delivery means a build can be released at any time, and continuous deployment means releasing is automatic.
+
+Infrastructure as code declares servers, networks and configuration in version control, so environment changes are reviewed like code and drift becomes visible. Without it, a deployment is a ritual performed differently by each engineer.
+
+Toil is manual, repetitive work that scales linearly with load. Reducing toil is a measurable engineering goal, and observability is what tells you where it is.
+
+Shared responsibility between development and operations is a design constraint: if the team that writes a service also runs it, the design has to be operable.

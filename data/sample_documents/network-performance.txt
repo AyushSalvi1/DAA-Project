@@ -1,0 +1,16 @@
+TITLE: Measuring and Improving Network Performance
+CATEGORY: Computer Networks
+AUTHOR: T. Banerjee
+KEYWORDS: network performance, qos, latency, packet loss, jitter, throughput, load balancing
+SUMMARY: Performance work begins with measurement. Round-trip time measures delay, packet-loss ratio measures reliability, jitter measures variation in arrival time, and goodput measures useful payload throughput after protocol overhead.
+----------------------------------------------------------------------
+
+Performance work begins with measurement. Round-trip time measures delay, packet-loss ratio measures reliability, jitter measures variation in arrival time, and goodput measures useful payload throughput after protocol overhead.
+
+The throughput-delay product is the number of bits that can be in flight in a link at once. It is the real capacity of a path, and it explains why a link with large bandwidth but long latency cannot transfer a large file quickly.
+
+Bottlenecks are found by measurement, not assumption: interface counters, queue depth, retransmission rate and latency percentiles across each hop. A single congested hop makes the whole path slow.
+
+Quality of service lets a network prioritise: latency-sensitive traffic such as voice is shaped and policed before bulk transfer. Shaping smooths bursts with a queue, policing enforces a contract by dropping or marking excess.
+
+Common remedies are content delivery networks for proximity, compression for bandwidth, caching for repeated requests, connection reuse to avoid repeated handshakes, and load balancing to spread demand. The trade-off is always between latency and consistency, and between cost and redundancy.

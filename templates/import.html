@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>Import documents</h1>
+  <div class="rule"></div>
+  <a class="btn btn-sm" href="{{ url_for('admin.admin_home') }}">Back to admin</a>
+</div>
+
+<div class="split">
+  <div class="card">
+    <div class="card-head"><h3>Upload text files</h3></div>
+    <form method="post" enctype="multipart/form-data">
+      <div class="field">
+        <label for="documents">Select up to 20 files (.txt or .md, 2 MB each)</label>
+        <input type="file" id="documents" name="documents" accept=".txt,.md,.text" multiple required>
+      </div>
+      <button type="submit" class="btn btn-primary">Import and index</button>
+    </form>
+    <p class="tiny muted" style="margin-top:1rem">
+      Safe file handling: only these three extensions are accepted, the file name is reduced to
+      its basename before use, the size is capped, and the content is decoded as UTF-8 with a
+      replacement fallback - never executed, never used to build a path.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Optional header format</h3></div>
+    <p class="muted small">
+      Files may start with a metadata block. Anything after the separator line becomes the body.
+    </p>
+    <pre class="code-block">TITLE: Balanced Search Trees
+CATEGORY: Algorithms
+AUTHOR: Prof. S. Iyer
+KEYWORDS: binary search tree, avl, red black, log n
+SUMMARY: Why logarithmic lookup matters.
+------------------------------------------------
+
+A binary search tree keeps keys sorted... See
+[[searching-algorithms]] for the comparison.
+
+{{ '&nbsp;&nbsp;' }}</pre>
+    <h4 style="margin-top:1rem">Ready-made sample files</h4>
+    <p class="muted small">
+      The 49 seed documents were written to <code class="mono">{{ sample_dir }}</code> at boot.
+      You can re-import any of them through this form to see the importer work.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

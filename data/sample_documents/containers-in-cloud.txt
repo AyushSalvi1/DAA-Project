@@ -1,0 +1,16 @@
+TITLE: Containers and Orchestration in the Cloud
+CATEGORY: Cloud Computing
+AUTHOR: P. Sandhu
+KEYWORDS: container, docker, kubernetes, orchestration, immutable deployment
+SUMMARY: A container packages an application with its dependencies into a single image that runs identically on any host with a compatible kernel. The mechanism is operating system namespaces, which isolate the view of the filesystem, processes and network, plus control groups, which limit CPU and memory.
+----------------------------------------------------------------------
+
+A container packages an application with its dependencies into a single image that runs identically on any host with a compatible kernel. The mechanism is operating system namespaces, which isolate the view of the filesystem, processes and network, plus control groups, which limit CPU and memory.
+
+The decisive property is immutability. An image is built once and promoted through environments without modification, so what runs in production is byte-for-byte what was tested. Tagging with the commit hash and deploying by digest makes rollbacks trivial.
+
+A container is not a virtual machine: it shares the host kernel, so it starts in milliseconds rather than seconds but cannot run a different kernel.
+
+An orchestrator schedules containers, heals them when they fail, and manages service discovery, scaling and rolling updates. Kubernetes represents desired state declaratively and continuously reconciles reality towards it, which means the controller loop, not the operator, is what guarantees consistency.
+
+Image size affects pull time and therefore scale-up latency, so multi-stage builds and minimal base images matter. Layer caching and image registries close the loop with the pipelines described in [[continuous-integration]].

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:460px;margin:3rem auto">
+  <div class="card-head"><h3>Admin sign in</h3></div>
+  <p class="muted small">
+    NexaSearch ships with one demo account so the CRUD features can be demonstrated without a
+    registration flow. Passwords are stored as PBKDF2 hashes, never in plain text.
+  </p>
+  <form method="post">
+    <div class="field">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" value="admin" required maxlength="60" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" value="nexasearch123" required maxlength="200" autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn btn-primary">Sign in</button>
+  </form>
+  <p class="tiny muted" style="margin-top:1rem">
+    Demo credentials: <code>admin</code> / <code>nexasearch123</code>. The session cookie is
+    signed, and every mutating route re-checks it server-side.
+  </p>
+</div>
+{% endblock %}

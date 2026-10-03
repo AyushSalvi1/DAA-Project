@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-title">
+  <h1>Admin dashboard</h1>
+  <div class="rule"></div>
+  <div class="pill-group">
+    {% if logged_in %}
+      <span class="chip chip-ok">signed in as {{ session.get('admin_username', 'admin') }}</span>
+      <a class="btn btn-sm" href="{{ url_for('admin.logout') }}">Sign out</a>
+      <a class="btn btn-sm btn-primary" href="{{ url_for('admin.new_document') }}">+ Add document</a>
+      <a class="btn btn-sm" href="{{ url_for('admin.import_documents') }}">Import</a>
+    {% else %}
+      <a class="btn btn-sm btn-primary" href="{{ url_for('admin.login') }}">Sign in to edit</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if not logged_in %}
+  <div class="alert alert-warn">
+    You are browsing the dashboard read-only. Sign in with the demo account
+    (<code>admin</code> / <code>nexasearch123</code>) to add, edit, delete, import or re-index documents.
+  </div>
+{% endif %}
+
+<div class="stat-grid">
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.tables.documents }}">0</span><span class="stat-label">Total documents</span>
+    <span class="stat-hint">{{ dashboard.graph.nodes }} graph nodes</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.tables.keywords }}">0</span><span class="stat-label">Total keywords</span>
+    <span class="stat-hint">{{ dashboard.tables.document_keywords }} document-keyword rows</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.search.total_searches }}">0</span><span class="stat-label">Total searches</span>
+    <span class="stat-hint">{{ dashboard.search.unique_queries }} unique queries</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.search.average_time_ms }}" data-decimals="3">0</span><span class="stat-label">Average search time (ms)</span>
+    <span class="stat-hint">{{ dashboard.search.success_rate }}% returned results</span></div>
+  <div class="stat"><span class="stat-value" data-count="{{ dashboard.index.unique_terms }}">0</span><span class="stat-label">Indexed terms</span>
+    <span class="stat-hint">built in {{ dashboard.index.build_time_ms }} ms</span></div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Most popular queries</h3><span class="tiny muted">count / average time</span></div>
+    {% if dashboard.popular_queries %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Query</th><th class="num">Searches</th><th class="num">Avg ms</th></tr></thead>
+          <tbody>
+            {% for row in dashboard.popular_queries %}
+              <tr>
+                <td><a href="{{ url_for('search.search', q=row.query) }}">{{ row.query }}</a></td>
+                <td class="num">{{ row.count }}</td>
+                <td class="num">{{ row.avg_ms }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted small">No searches recorded yet. Try a few queries first.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Most frequently matched documents</h3></div>
+    {% if dashboard.most_matched %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Document</th><th class="num">Shown</th><th class="num">Opened</th></tr></thead>
+          <tbody>
+            {% for row in dashboard.most_matched %}
+              <tr>
+                <td class="num">{{ row.id }}</td>
+                <td><a href="{{ url_for('search.document', doc_id=row.id) }}">{{ row.title }}</a></td>
+                <td class="num">{{ row.times_shown }}</td>
+                <td class="num">{{ row.times_clicked }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted small">No documents have been shown in results yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem">
+  <div class="card">
+    <div class="card-head"><h3>Documents per category</h3></div>
+    <canvas class="chart" data-height="240" id="category-chart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Top terms by corpus frequency</h3></div>
+    <canvas class="chart" data-height="240" id="terms-chart"></canvas>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.2rem">
+  <div class="card-head">
+    <h3>Document management</h3>
+    <form action="{{ url_for('admin.admin_home') }}" method="get" class="filters">
+      <input type="search" name="q" value="{{ search_term }}" placeholder="Filter by title or text" style="width:200px">
+      <select name="category" data-submit-on-change>
+        <option value="all">All categories</option>
+        {% for row in categories %}
+          <option value="{{ row.category }}" {{ 'selected' if category == row.category }}>{{ row.category }}</option>
+        {% endfor %}
+      </select>
+      <select name="sort" data-submit-on-change>
+        <option value="newest" {{ 'selected' if sort == 'newest' }}>Newest</option>
+        <option value="oldest" {{ 'selected' if sort == 'oldest' }}>Oldest</option>
+        <option value="title" {{ 'selected' if sort == 'title' }}>Title</option>
+        <option value="hits" {{ 'selected' if sort == 'hits' }}>Most viewed</option>
+      </select>
+      <button type="submit" class="btn btn-sm">Filter</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">ID</th><th>Title</th><th>Category</th><th>Author</th>
+          <th class="num">Keywords</th><th class="num">Views</th><th>Created</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc in documents %}
+          <tr>
+            <td class="num">{{ doc.id }}</td>
+            <td><a href="{{ url_for('search.document', doc_id=doc.id) }}">{{ doc.title }}</a></td>
+            <td><span class="chip">{{ doc.category }}</span></td>
+            <td class="muted small">{{ doc.author }}</td>
+            <td class="num">{{ doc.keywords | length }}</td>
+            <td class="num">{{ doc.hits }}</td>
+            <td class="muted small">{{ doc.created[:10] }}</td>
+            <td>
+              {% if logged_in %}
+                <a class="btn btn-sm" href="{{ url_for('admin.edit_document', doc_id=doc.id) }}">Edit</a>
+                <form action="{{ url_for('admin.delete_document', doc_id=doc.id) }}" method="post" style="display:inline"
+                      data-confirm="Delete &quot;{{ doc.title }}&quot; permanently?">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              {% else %}
+                <span class="tiny muted">read-only</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="8" class="center muted">No documents match this filter.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pages > 1 %}
+    <nav class="pagination">
+      {% for number in range(1, pages + 1) %}
+        {% if number == page %}
+          <span class="current">{{ number }}</span>
+        {% else %}
+          <a href="{{ url_for('admin.admin_home', page=number, category=category, sort=sort, q=search_term) }}">{{ number }}</a>
+        {% endif %}
+      {% endfor %}
+    </nav>
+  {% endif %}
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem">
+  <div class="card">
+    <div class="card-head"><h3>Index maintenance</h3></div>
+    <p class="muted small">
+      Rebuilding recreates the trie, the hash table, the inverted index, the document graph,
+      the PageRank scores and the TF-IDF model. Last rebuild: <strong>{{ dashboard.last_rebuild }}</strong>.
+    </p>
+    <dl class="kv">
+      <dt>Documents</dt><dd>{{ dashboard.index.documents }}</dd>
+      <dt>Postings</dt><dd>{{ dashboard.index.postings | compact }}</dd>
+      <dt>Trie nodes</dt><dd>{{ dashboard.index.trie.nodes | compact }}</dd>
+      <dt>Hash load factor</dt><dd>{{ dashboard.index.hash_table.load_factor }}</dd>
+      <dt>Graph edges</dt><dd>{{ dashboard.graph.edges }} ({{ dashboard.graph.reference_edges }} reference)</dd>
+      <dt>PageRank</dt><dd>{{ dashboard.pagerank.iterations }} iteration(s), converged: {{ 'yes' if dashboard.pagerank.converged else 'no' }}</dd>
+    </dl>
+    {% if logged_in %}
+      <form action="{{ url_for('admin.reindex') }}" method="post" style="margin-top:1rem"
+            data-confirm="Rebuild the whole index now?">
+        <button type="submit" class="btn btn-primary">Rebuild index</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Search history</h3>
+      {% if logged_in and recent %}
+        <form action="{{ url_for('admin.clear_history') }}" method="post" data-confirm="Clear all search history?">
+          <button type="submit" class="btn btn-sm btn-danger">Clear history</button>
+        </form>
+      {% endif %}
+    </div>
+    {% if recent %}
+      <div class="table-wrap" style="max-height:320px;overflow:auto">
+        <table>
+          <thead><tr><th>Query</th><th class="num">Results</th><th class="num">Docs searched</th><th class="num">Time (ms)</th><th>When</th></tr></thead>
+          <tbody>
+            {% for row in recent %}
+              <tr>
+                <td><a href="{{ url_for('search.search', q=row.query) }}">{{ row.query }}</a></td>
+                <td class="num">{{ row.result_count }}</td>
+                <td class="num">{{ row.documents_searched }}</td>
+                <td class="num">{{ row.execution_time | ms }}</td>
+                <td class="muted small">{{ row.created_at }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted small">No searches yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card" style="margin-top:1.2rem">
+  <div class="card-head"><h3>Database tables</h3><span class="tiny muted">SQLite, created automatically on boot</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Table</th><th class="num">Rows</th><th>Purpose</th></tr></thead>
+      <tbody>
+        {% set purposes = {
+          'documents': 'the searchable corpus',
+          'keywords': 'vocabulary with document frequency and IDF',
+          'document_keywords': 'many-to-many postings used to build the index',
+          'search_history': 'recent queries with measured execution time',
+          'search_statistics': 'per-document impression and click counters',
+          'users': 'demo authentication (PBKDF2 hashed passwords)',
+          'document_links': 'directed edges of the document graph',
+          'benchmark_results': 'persisted performance measurements' } %}
+        {% for table, count in dashboard.tables.items() %}
+          <tr>
+            <td class="mono">{{ table }}</td>
+            <td class="num">{{ count | compact }}</td>
+            <td class="muted small">{{ purposes.get(table, '') }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const categories = {{ dashboard.categories | tojson }};
+  const terms = {{ dashboard.top_terms | tojson }};
+
+  window.NexaChart.render(document.getElementById("category-chart"), {
+    labels: categories.map(row => row.category),
+    bar: true,
+    series: [{ name: "documents", data: categories.map(row => ({ x: 0, y: row.count })) }]
+  });
+
+  window.NexaChart.render(document.getElementById("terms-chart"), {
+    labels: terms.map(row => row.term),
+    bar: true,
+    series: [{ name: "frequency", data: terms.map(row => ({ x: 0, y: row.frequency })) }]
+  });
+})();
+</script>
+{% endblock %}

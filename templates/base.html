@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ title or 'Search' }}{% endblock %} &middot; {{ app_name }}</title>
+  <meta name="description" content="NexaSearch - an algorithmic search engine built for a Design and Analysis of Algorithms project. Trie, hashing, KMP, Rabin-Karp, BFS, DFS, Dijkstra, TF-IDF and PageRank implemented by hand.">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="{{ url_for('search.home') }}">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path d="M10 3a7 7 0 1 1-4.5 12.4l-3 3a1 1 0 0 1-1.4-1.4l3-3A7 7 0 0 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="currentColor"/></svg>
+        </span>
+        <span class="brand-text">
+          <strong>{{ app_name }}</strong>
+          <em>{{ tagline }}</em>
+        </span>
+      </a>
+
+      <form class="header-search" action="{{ url_for('search.search') }}" method="get" role="search" autocomplete="off">
+        <div class="search-field" data-autocomplete>
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M10 3a7 7 0 1 1-4.5 12.4l-3 3a1 1 0 0 1-1.4-1.4l3-3A7 7 0 0 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="currentColor"/></svg>
+          <input type="search" name="q" id="header-q" placeholder="Search the corpus&hellip; try &quot;graph algorithm&quot;"
+                 value="{{ query or '' }}" aria-label="Search query" maxlength="200">
+          <button type="submit" class="btn btn-primary btn-sm">Search</button>
+          <ul class="suggestions" role="listbox" hidden></ul>
+        </div>
+      </form>
+
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn" aria-label="Toggle colour theme" title="Toggle light / dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="currentColor"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0 2a1 1 0 0 1 0-2 1 1 0 0 1 0 2Zm-1-12a1 1 0 0 1-2 0V5a1 1 0 0 1 2 0v2Zm0 16a1 1 0 0 1-2 0v-2a1 1 0 0 1 2 0v2ZM4 13a1 1 0 0 1-2 0 1 1 0 0 1 2 0Zm18 0a1 1 0 0 1-2 0 1 1 0 0 1 2 0ZM6.3 6.3a1 1 0 0 1-1.4-1.4l1.4-1.4a1 1 0 0 1 1.4 1.4L6.3 6.3Zm11.4 11.4a1 1 0 0 1-1.4-1.4l1.4-1.4a1 1 0 0 1 1.4 1.4l-1.4 1.4ZM17.7 6.3l1.4-1.4a1 1 0 0 1 1.4 1.4l-1.4 1.4a1 1 0 0 1-1.4-1.4ZM6.3 17.7a1 1 0 0 1 1.4 1.4l-1.4 1.4a1 1 0 0 1-1.4-1.4l1.4-1.4Z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <nav class="site-nav" aria-label="Primary">
+      <div class="container nav-inner">
+        <a href="{{ url_for('search.home') }}" class="{{ 'active' if request.endpoint == 'search.home' }}">Home</a>
+        <a href="{{ url_for('search.search') }}" class="{{ 'active' if request.endpoint == 'search.search' }}">Search</a>
+        <a href="{{ url_for('search.browse') }}" class="{{ 'active' if request.endpoint == 'search.browse' }}">Browse</a>
+        <a href="{{ url_for('algorithms.algorithms_dashboard') }}" class="{{ 'active' if request.endpoint == 'algorithms.algorithms_dashboard' }}">Algorithms</a>
+        <a href="{{ url_for('algorithms.visualizer') }}" class="{{ 'active' if request.endpoint == 'algorithms.visualizer' }}">Algorithm Lab</a>
+        <a href="{{ url_for('algorithms.complexity') }}" class="{{ 'active' if request.endpoint == 'algorithms.complexity' }}">Complexity</a>
+        <a href="{{ url_for('search.graph_page') }}" class="{{ 'active' if request.endpoint == 'search.graph_page' }}">Graph</a>
+        <a href="{{ url_for('admin.admin_home') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin') }}">Admin</a>
+        <a href="{{ url_for('admin.stats') }}" class="{{ 'active' if request.endpoint == 'admin.stats' }}">Stats</a>
+      </div>
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container flash-stack">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main id="main" class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>{{ app_name }}</strong>
+        <p class="muted">{{ tagline }}</p>
+        <p class="muted small">
+          Every algorithm in this project is implemented by hand: linear &amp; binary search,
+          hash table, trie, KMP, Rabin-Karp, BFS, DFS, Dijkstra, merge sort, quick sort,
+          TF-IDF, PageRank and a hand-built binary heap.
+        </p>
+      </div>
+      <div class="footer-stats">
+        <div><span class="stat-value">{{ index_stats.documents }}</span><span class="stat-label">documents</span></div>
+        <div><span class="stat-value">{{ index_stats.unique_terms }}</span><span class="stat-label">terms</span></div>
+        <div><span class="stat-value">{{ index_stats.postings | compact }}</span><span class="stat-label">postings</span></div>
+        <div><span class="stat-value">{{ index_stats.trie.nodes | compact }}</span><span class="stat-label">trie nodes</span></div>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="muted small">&copy; {{ current_year }} {{ app_name }} &middot; Design and Analysis of Algorithms project</span>
+      <span class="muted small">SQLite &middot; Flask &middot; vanilla JS &middot; no external AI services</span>
+    </div>
+  </footer>
+
+  {% if recent_searches %}
+    <aside class="history-dock" id="history-dock">
+      <button type="button" class="history-toggle" aria-expanded="false">
+        <span class="dot"></span> Recent searches
+      </button>
+      <ul class="history-list">
+        {% for item in recent_searches[:6] %}
+          <li>
+            <a href="{{ url_for('search.search', q=item.query) }}">{{ item.query }}</a>
+            <span class="muted small">{{ item.result_count }} results &middot; {{ item.execution_time | ms }} ms</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

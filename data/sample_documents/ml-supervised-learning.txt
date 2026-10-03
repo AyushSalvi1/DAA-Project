@@ -1,0 +1,14 @@
+TITLE: Supervised Learning: Labelled Data and Loss Functions
+CATEGORY: Machine Learning
+AUTHOR: Prof. R. Menon
+KEYWORDS: supervised learning, classification, regression, loss function, gradient descent
+SUMMARY: Supervised learning fits a model to pairs of inputs and known outputs. Classification predicts a discrete label, regression predicts a continuous value.
+----------------------------------------------------------------------
+
+Supervised learning fits a model to pairs of inputs and known outputs. Classification predicts a discrete label, regression predicts a continuous value.
+
+The learning objective is to minimise a loss function that measures the discrepancy between prediction and target. Squared error is natural for regression but its gradient grows with the error, so outliers dominate. Binary cross-entropy suits classification because its logarithm strongly penalises confident wrong answers. Its gradient simplifies to the predicted probability minus the true label, which is why gradient descent on cross-entropy is numerically stable.
+
+Optimisation is iterative because the loss surface of a neural network has many local minima. Batch gradient descent uses the whole dataset per step and is stable but slow. Stochastic gradient descent uses one example and is noisy but fast. Mini-batch gradient descent, with batches of tens to hundreds, is the practical compromise.
+
+The hypothesis class bounds what can be learned. Linear models cannot represent interactions, decision trees can but may overfit, and nearest-neighbour methods have no parameters at all. Choosing the class is the real modelling decision; the optimiser is comparatively routine. Evaluation discipline is described in [[ml-model-evaluation]] and data preparation in [[ml-feature-engineering]].
